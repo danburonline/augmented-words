@@ -1,10 +1,10 @@
-import { VRButton, XR, Controllers, Hands } from '@react-three/xr';
+import { ARButton, XR, Controllers, Hands } from '@react-three/xr';
 import { Canvas } from '@react-three/fiber';
 
 export default function Home() {
   return (
     <>
-      <VRButton />
+      <ARButton />
       <Canvas>
         <XR>
           <Controllers />
