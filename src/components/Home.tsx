@@ -1,5 +1,4 @@
-import { XR, Hands, RayGrab, Controllers, ARButton } from '@react-three/xr';
-import { Environment } from '@react-three/drei';
+import { XR, Hands, RayGrab } from '@react-three/xr';
 import { Canvas } from '@react-three/fiber';
 import CustomARButton from './CustomARButton';
 
