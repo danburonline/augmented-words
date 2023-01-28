@@ -1,4 +1,4 @@
-import { ARButton, XR, Controllers, Hands } from '@react-three/xr';
+import { ARButton, XR, Hands, RayGrab } from '@react-three/xr';
 import { Canvas } from '@react-three/fiber';
 
 export default function Home() {
@@ -7,12 +7,13 @@ export default function Home() {
       <ARButton />
       <Canvas>
         <XR>
-          <Controllers />
           <Hands />
-          <mesh>
-            <boxGeometry />
-            <meshBasicMaterial color='blue' />
-          </mesh>
+          <RayGrab>
+            <mesh>
+              <boxGeometry args={[0.1, 0.1, 0.1]} position={[10, 1, 1]} />
+              <meshBasicMaterial color='blue' />
+            </mesh>
+          </RayGrab>
         </XR>
       </Canvas>
     </>
