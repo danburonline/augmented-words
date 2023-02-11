@@ -12,7 +12,7 @@ export default function Home() {
           <RayGrab>
             <mesh>
               <boxGeometry args={[0.1, 0.1, 0.1]} position={[10, 1, 1]} />
-              <meshBasicMaterial color='red' />
+              <meshBasicMaterial color='blue' />
             </mesh>
           </RayGrab>
         </XR>
