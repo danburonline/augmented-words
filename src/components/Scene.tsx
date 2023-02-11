@@ -6,6 +6,8 @@ import { Environment, Grid, Stage } from '@react-three/drei';
 function FingerTipSphere() {
   const xr = useXR();
 
+  console.log(xr.controllers[1]?.hand.joints['index-finger-tip']?.position);
+
   return (
     <mesh
       position={xr.controllers[1]?.hand.joints['index-finger-tip']?.position}
@@ -16,7 +18,7 @@ function FingerTipSphere() {
   );
 }
 
-export default function Home() {
+export default function Scene() {
   return (
     <>
       <CustomARButton />
