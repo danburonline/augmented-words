@@ -2,6 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@next/font': 13.1.6
+  '@react-three/cannon': 6.5.2
   '@react-three/drei': 9.56.24
   '@react-three/fiber': 8.10.1
   '@react-three/xr': 5.1.3
@@ -19,6 +20,7 @@ specifiers:
 
 dependencies:
   '@next/font': 13.1.6
+  '@react-three/cannon': 6.5.2_q6qhl5hj2cnhassszlk4otqkty
   '@react-three/drei': 9.56.24_nrny4mqmhpgxe24luyn4ejfmom
   '@react-three/fiber': 8.10.1_xor7byvqlg4baqj6ymfbcmaax4
   '@react-three/xr': 5.1.3_3rdppqv7sj4lofmxp54xjrptce
@@ -267,6 +269,14 @@ packages:
       tslib: 2.5.0
     dev: false
 
+  /@pmndrs/cannon-worker-api/2.3.2_three@0.149.0:
+    resolution: {integrity: sha512-+4YGTH7XfSvUYUa65LoltcDMRLu3lr7rFtHT9dmeCeu2JJ7Zg2xBFJ5wiWSJmcM1ECh2R0YDcROdEQ1JKpOgFA==}
+    peerDependencies:
+      three: '>=0.139'
+    dependencies:
+      three: 0.149.0
+    dev: false
+
   /@react-spring/animated/9.6.1_react@18.2.0:
     resolution: {integrity: sha512-ls/rJBrAqiAYozjLo5EPPLLOb1LM0lNVQcXODTC1SMtS6DbuBCPaKco5svFUQFMP2dso3O+qcC4k9FsKc0KxMQ==}
     peerDependencies:
@@ -321,6 +331,23 @@ packages:
 
   /@react-spring/types/9.6.1:
     resolution: {integrity: sha512-POu8Mk0hIU3lRXB3bGIGe4VHIwwDsQyoD1F394OK7STTiX9w4dG3cTLljjYswkQN+hDSHRrj4O36kuVa7KPU8Q==}
+    dev: false
+
+  /@react-three/cannon/6.5.2_q6qhl5hj2cnhassszlk4otqkty:
+    resolution: {integrity: sha512-d7qH2XMVtHRkCaMUWpLkWSD9JPiE570gy8LoP7WBw+Ui+hI9ZiFx9HDaX5+Y6wzbGJd1WvELWaG9O0cOtk2rmw==}
+    peerDependencies:
+      '@react-three/fiber': '>=8'
+      react: '>=18'
+      three: '>=0.139'
+    dependencies:
+      '@pmndrs/cannon-worker-api': 2.3.2_three@0.149.0
+      '@react-three/fiber': 8.10.1_xor7byvqlg4baqj6ymfbcmaax4
+      cannon-es: 0.20.0
+      cannon-es-debugger: 1.0.0_7wljda2ugpkvptevmbro4qkjpa
+      react: 18.2.0
+      three: 0.149.0
+    transitivePeerDependencies:
+      - typescript
     dev: false
 
   /@react-three/drei/9.56.24_nrny4mqmhpgxe24luyn4ejfmom:
@@ -713,6 +740,25 @@ packages:
 
   /caniuse-lite/1.0.30001449:
     resolution: {integrity: sha512-CPB+UL9XMT/Av+pJxCKGhdx+yg1hzplvFJQlJ2n68PyQGMz9L/E2zCyLdOL8uasbouTUgnPl+y0tccI/se+BEw==}
+    dev: false
+
+  /cannon-es-debugger/1.0.0_7wljda2ugpkvptevmbro4qkjpa:
+    resolution: {integrity: sha512-sE9lDOBAYFKlh+0w+cvWKwUhJef8HYnUSVPWPL0jD15MAuVRQKno4QYZSGxgOoJkMR3mQqxL4bxys2b3RSWH8g==}
+    peerDependencies:
+      cannon-es: 0.x
+      three: 0.x
+      typescript: '>=3.8'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      cannon-es: 0.20.0
+      three: 0.149.0
+      typescript: 4.9.4
+    dev: false
+
+  /cannon-es/0.20.0:
+    resolution: {integrity: sha512-eZhWTZIkFOnMAJOgfXJa9+b3kVlvG+FX4mdkpePev/w/rP5V8NRquGyEozcjPfEoXUlb+p7d9SUcmDSn14prOA==}
     dev: false
 
   /chalk/4.1.2:
