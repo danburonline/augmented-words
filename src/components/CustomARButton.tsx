@@ -1,7 +1,6 @@
 import { XRButton, XRButtonProps } from '@react-three/xr';
 import React from 'react';
 
-// eslint-disable-next-line react/display-name
 export const ImmersiveARButton = React.forwardRef<
   HTMLButtonElement,
   Omit<XRButtonProps, 'mode'>
@@ -27,5 +26,7 @@ export const ImmersiveARButton = React.forwardRef<
     </XRButton>
   )
 );
+
+ImmersiveARButton.displayName = 'ImmersiveARButton';
 
 export default ImmersiveARButton;
