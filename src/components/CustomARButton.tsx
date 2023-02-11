@@ -28,5 +28,4 @@ export const ImmersiveARButton = React.forwardRef<
 );
 
 ImmersiveARButton.displayName = 'ImmersiveARButton';
-
 export default ImmersiveARButton;
