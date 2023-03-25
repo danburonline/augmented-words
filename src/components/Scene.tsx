@@ -8,7 +8,7 @@ type FingerTipSphereProps = {
   handIndex: number;
   color: string;
   size: number;
-  onCollision?: (colliding: boolean) => void;
+  onCollision?: (colliding: boolean, handIndex: number) => void;
 };
 
 const FingerTipSphere = forwardRef<THREE.Mesh, FingerTipSphereProps>(
@@ -32,7 +32,7 @@ const FingerTipSphere = forwardRef<THREE.Mesh, FingerTipSphereProps>(
         );
 
         const colliding = distance <= size;
-        onCollision?.(colliding);
+        onCollision?.(colliding, handIndex);
       }
     });
 
@@ -66,8 +66,10 @@ export default function Scene() {
   const sphere1Ref = useRef<THREE.Mesh | null>(null);
   const sphere2Ref = useRef<THREE.Mesh | null>(null);
 
-  const handleCollision = (colliding1: boolean, colliding2: boolean) => {
-    setColliding(colliding1 || colliding2);
+  const handleCollision = (colliding: boolean, handIndex: number) => {
+    if (handIndex === 0) {
+      setColliding(colliding);
+    }
   };
 
   useEffect(() => {
@@ -97,14 +99,14 @@ export default function Scene() {
             color={sphere1Color}
             size={sphere1Size}
             ref={sphere1Ref}
-            onCollision={(colliding) => handleCollision(colliding, false)}
+            onCollision={(colliding) => handleCollision(colliding, 0)}
           />
           <FingerTipSphere
             handIndex={1}
             color={sphere2Color}
             size={sphere2Size}
             ref={sphere2Ref}
-            onCollision={(colliding) => handleCollision(false, colliding)}
+            onCollision={(colliding) => handleCollision(colliding, 1)}
           />
           <Stage
             intensity={0.5}
