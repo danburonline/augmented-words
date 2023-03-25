@@ -9,19 +9,19 @@ function FingerTipSphere() {
   const meshRef = useRef<THREE.Mesh | null>(null);
 
   useFrame(() => {
-    if (meshRef.current && xr.controllers[1]?.hand.joints['index-finger-tip']) {
+    if (meshRef.current && xr.controllers[0]?.hand.joints['index-finger-tip']) {
       meshRef.current.position.set(
-        xr.controllers[1].hand.joints['index-finger-tip'].position.x,
-        xr.controllers[1].hand.joints['index-finger-tip'].position.y,
-        xr.controllers[1].hand.joints['index-finger-tip'].position.z
+        xr.controllers[0].hand.joints['index-finger-tip'].position.x,
+        xr.controllers[0].hand.joints['index-finger-tip'].position.y,
+        xr.controllers[0].hand.joints['index-finger-tip'].position.z
       );
     }
   });
 
   return (
     <mesh ref={meshRef}>
-      <sphereGeometry args={[0.01, 0.01, 0.01]} />
-      <meshStandardMaterial color='red' />
+      <sphereGeometry args={[0.01, 15, 15]} />
+      <meshStandardMaterial color='green' />
     </mesh>
   );
 }
