@@ -4,15 +4,20 @@ import { Environment, Grid, Stage } from '@react-three/drei';
 import { Physics, useBox, useSphere } from '@react-three/cannon';
 import CustomARButton from './CustomARButton';
 
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Mesh } from 'three';
 
 type FingerTipSphereProps = {
   handIndex: number;
   color: string;
+  onCollide: () => void;
 };
 
-function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
+function FingerTipSphere({
+  handIndex,
+  color,
+  onCollide,
+}: FingerTipSphereProps) {
   const xr = useXR();
   const meshRef = useRef<Mesh | null>(null);
   const [ref] = useSphere(() => ({
@@ -35,6 +40,19 @@ function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
     }
   });
 
+  useBox(
+    (boxRef) => ({
+      args: [0.5, 0.5, 0.5],
+      onCollide: () => {
+        onCollide();
+      },
+      collisionFilterGroup: 1,
+      collisionFilterMask: 2,
+      ref: boxRef,
+    }),
+    [ref]
+  );
+
   return (
     <mesh ref={meshRef}>
       <sphereGeometry args={[0.01, 15, 15]} />
@@ -45,6 +63,10 @@ function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
 
 function Cube() {
   const [color, setColor] = useState('green');
+  const handleCollide = useCallback(() => {
+    setColor('red');
+  }, []);
+
   const [ref] = useBox(() => ({
     mass: 0,
     position: [0, 1, -0.5],
@@ -52,8 +74,7 @@ function Cube() {
     collisionFilterGroup: 1,
     collisionFilterMask: 2,
     onCollide: () => {
-      console.log('it runs here');
-      setColor('red');
+      handleCollide();
     },
   }));
 
@@ -80,12 +101,19 @@ export default function Scene() {
       <CustomARButton />
       <Canvas>
         <ambientLight intensity={0.25} />
-        {/* <Environment background preset='sunset' blur={0.8} /> */}
         <Physics>
           <XR>
             <Hands />
-            <FingerTipSphere handIndex={0} color='red' />
-            <FingerTipSphere handIndex={1} color='green' />
+            <FingerTipSphere
+              handIndex={0}
+              color='red'
+              onCollide={() => console.log('Collided with red sphere')}
+            />
+            <FingerTipSphere
+              handIndex={1}
+              color='green'
+              onCollide={() => console.log('Collided with green sphere')}
+            />
             <Cube />
             <Stage
               intensity={0.5}
