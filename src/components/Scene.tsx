@@ -1,39 +1,84 @@
-import { XR, Hands, useXR } from '@react-three/xr';
+import { useState, useRef, forwardRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
+import { XR, Hands, useXR } from '@react-three/xr';
 import CustomARButton from './CustomARButton';
 import { Environment, Grid, Stage } from '@react-three/drei';
-
-import { useRef } from 'react';
 
 type FingerTipSphereProps = {
   handIndex: number;
   color: string;
+  size: number;
+  onCollision?: (colliding: boolean) => void;
 };
 
-function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
-  const xr = useXR();
-  const meshRef = useRef<THREE.Mesh | null>(null);
+const FingerTipSphere = forwardRef<THREE.Mesh, FingerTipSphereProps>(
+  ({ handIndex, color, size, onCollision }, ref) => {
+    const xr = useXR();
+    const meshRef = useRef<THREE.Mesh | null>(null);
 
-  useFrame(() => {
-    const joint = xr.controllers[handIndex]?.hand?.joints['index-finger-tip'];
-    if (meshRef.current && joint) {
-      meshRef.current.position.set(
-        joint.position.x,
-        joint.position.y,
-        joint.position.z
-      );
-    }
-  });
+    useFrame(() => {
+      const joint = xr.controllers[handIndex]?.hand?.joints['index-finger-tip'];
+      if (meshRef.current && joint) {
+        meshRef.current.position.set(
+          joint.position.x,
+          joint.position.y,
+          joint.position.z
+        );
+      }
 
-  return (
-    <mesh ref={meshRef}>
-      <sphereGeometry args={[0.01, 15, 15]} />
-      <meshStandardMaterial color={color} />
-    </mesh>
-  );
-}
+      if (typeof ref !== 'function' && ref?.current && meshRef.current) {
+        const distance = ref.current.position.distanceTo(
+          meshRef.current.position
+        );
+
+        const colliding = distance <= size;
+        onCollision?.(colliding);
+      }
+    });
+
+    return (
+      <mesh
+        ref={(instance) => {
+          meshRef.current = instance;
+          if (typeof ref === 'function') {
+            ref(instance);
+          } else if (ref) {
+            ref.current = instance;
+          }
+        }}
+      >
+        <sphereGeometry args={[size, 15, 15]} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+    );
+  }
+);
+
+FingerTipSphere.displayName = 'FingerTipSphere';
 
 export default function Scene() {
+  const [sphere1Color, setSphere1Color] = useState('red');
+  const [sphere2Color, setSphere2Color] = useState('green');
+  const [sphere1Size, setSphere1Size] = useState(0.01);
+  const [sphere2Size, setSphere2Size] = useState(0.01);
+
+  const sphere1Ref = useRef<THREE.Mesh | null>(null);
+  const sphere2Ref = useRef<THREE.Mesh | null>(null);
+
+  const handleCollision = (colliding: boolean) => {
+    if (colliding) {
+      setSphere1Color('blue');
+      setSphere2Color('yellow');
+      setSphere1Size(0.015);
+      setSphere2Size(0.015);
+    } else {
+      setSphere1Color('red');
+      setSphere2Color('green');
+      setSphere1Size(0.01);
+      setSphere2Size(0.01);
+    }
+  };
+
   return (
     <>
       <CustomARButton />
@@ -42,8 +87,20 @@ export default function Scene() {
         <Environment background preset='sunset' blur={0.8} />
         <XR>
           <Hands />
-          <FingerTipSphere handIndex={0} color='red' />
-          <FingerTipSphere handIndex={1} color='green' />
+          <FingerTipSphere
+            handIndex={0}
+            color={sphere1Color}
+            size={sphere1Size}
+            ref={sphere1Ref}
+            onCollision={handleCollision}
+          />
+          <FingerTipSphere
+            handIndex={1}
+            color={sphere2Color}
+            size={sphere2Size}
+            ref={sphere2Ref}
+            onCollision={handleCollision}
+          />
           <Stage
             intensity={0.5}
             environment='city'
