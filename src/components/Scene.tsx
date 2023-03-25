@@ -2,7 +2,12 @@ import { XR, Hands, useXR } from '@react-three/xr';
 import { Canvas, useFrame } from '@react-three/fiber';
 import CustomARButton from './CustomARButton';
 import { Environment, Grid, Stage } from '@react-three/drei';
-import { Physics, RigidBody, CuboidCollider } from '@react-three/rapier';
+import {
+  Physics,
+  RigidBody,
+  CuboidCollider,
+  RapierRigidBody,
+} from '@react-three/rapier';
 
 import { Suspense, useRef } from 'react';
 
@@ -14,23 +19,34 @@ type FingerTipSphereProps = {
 function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
   const xr = useXR();
   const meshRef = useRef<THREE.Mesh | null>(null);
+  const physicsRef = useRef<RapierRigidBody>(null);
 
   useFrame(() => {
     const joint = xr.controllers[handIndex]?.hand?.joints['index-finger-tip'];
-    if (meshRef.current && joint) {
+    if (meshRef.current && joint && physicsRef.current) {
       meshRef.current.position.set(
         joint.position.x,
         joint.position.y,
         joint.position.z
       );
+
+      // TODO Apply the position to the physics body
+      // physicsRef.current.setTranslation(joint.position.x, true);
     }
   });
 
   return (
-    <mesh ref={meshRef}>
-      <sphereGeometry args={[0.01, 15, 15]} />
-      <meshStandardMaterial color={color} />
-    </mesh>
+    <RigidBody
+      ref={physicsRef}
+      args={[0.01, 15, 15]}
+      colliders='ball'
+      onCollisionEnter={() => console.log('finger collided')}
+    >
+      <mesh ref={meshRef}>
+        <sphereGeometry args={[0.01, 15, 15]} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+    </RigidBody>
   );
 }
 
