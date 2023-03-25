@@ -1,4 +1,4 @@
-import { useState, useRef, forwardRef } from 'react';
+import { useState, useRef, forwardRef, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { XR, Hands, useXR } from '@react-three/xr';
 import CustomARButton from './CustomARButton';
@@ -61,11 +61,16 @@ export default function Scene() {
   const [sphere2Color, setSphere2Color] = useState('green');
   const [sphere1Size, setSphere1Size] = useState(0.01);
   const [sphere2Size, setSphere2Size] = useState(0.01);
+  const [colliding, setColliding] = useState(false);
 
   const sphere1Ref = useRef<THREE.Mesh | null>(null);
   const sphere2Ref = useRef<THREE.Mesh | null>(null);
 
-  const handleCollision = (colliding: boolean) => {
+  const handleCollision = (colliding1: boolean, colliding2: boolean) => {
+    setColliding(colliding1 || colliding2);
+  };
+
+  useEffect(() => {
     if (colliding) {
       setSphere1Color('blue');
       setSphere2Color('yellow');
@@ -77,7 +82,7 @@ export default function Scene() {
       setSphere1Size(0.01);
       setSphere2Size(0.01);
     }
-  };
+  }, [colliding]);
 
   return (
     <>
@@ -92,14 +97,14 @@ export default function Scene() {
             color={sphere1Color}
             size={sphere1Size}
             ref={sphere1Ref}
-            onCollision={handleCollision}
+            onCollision={(colliding) => handleCollision(colliding, false)}
           />
           <FingerTipSphere
             handIndex={1}
             color={sphere2Color}
             size={sphere2Size}
             ref={sphere2Ref}
-            onCollision={handleCollision}
+            onCollision={(colliding) => handleCollision(false, colliding)}
           />
           <Stage
             intensity={0.5}
