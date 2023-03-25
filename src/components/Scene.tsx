@@ -31,6 +31,7 @@ function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
         joint.position.z
       );
       meshRef.current.position.copy(ref.current.position);
+      meshRef.current.quaternion.copy(ref.current.quaternion);
     }
   });
 
@@ -56,8 +57,17 @@ function Cube() {
     },
   }));
 
+  const meshRef = useRef<Mesh | null>(null);
+
+  useFrame(() => {
+    if (meshRef.current && ref.current) {
+      meshRef.current.position.copy(ref.current.position);
+      meshRef.current.quaternion.copy(ref.current.quaternion);
+    }
+  });
+
   return (
-    <mesh {...ref} position={[0, 1, -0.5]}>
+    <mesh ref={meshRef} position={[0, 1, -0.5]}>
       <boxGeometry args={[0.5, 0.5, 0.5]} />
       <meshStandardMaterial color={color} />
     </mesh>
