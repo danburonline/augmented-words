@@ -1,122 +1,88 @@
-import { useState, useRef, forwardRef, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
 import { XR, Hands, useXR } from '@react-three/xr';
-import CustomARButton from './CustomARButton';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment, Grid, Stage } from '@react-three/drei';
+import { Physics, useBox, useSphere } from '@react-three/cannon';
+import CustomARButton from './CustomARButton';
+
+import { useRef, useState } from 'react';
+import { Mesh } from 'three';
 
 type FingerTipSphereProps = {
   handIndex: number;
   color: string;
-  size: number;
-  onCollision?: (colliding: boolean, handIndex: number) => void;
 };
 
-const FingerTipSphere = forwardRef<THREE.Mesh, FingerTipSphereProps>(
-  ({ handIndex, color, size, onCollision }, ref) => {
-    const xr = useXR();
-    const meshRef = useRef<THREE.Mesh | null>(null);
+function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
+  const xr = useXR();
+  const meshRef = useRef<Mesh | null>(null);
+  const [ref] = useSphere(() => ({
+    args: [0.01],
+    type: 'Kinematic',
+  }));
 
-    useFrame(() => {
-      const joint = xr.controllers[handIndex]?.hand?.joints['index-finger-tip'];
-      if (meshRef.current && joint) {
-        meshRef.current.position.set(
-          joint.position.x,
-          joint.position.y,
-          joint.position.z
-        );
-      }
+  useFrame(() => {
+    const joint = xr.controllers[handIndex]?.hand?.joints['index-finger-tip'];
+    if (meshRef.current && joint && ref.current) {
+      ref.current.position.set(
+        joint.position.x,
+        joint.position.y,
+        joint.position.z
+      );
+      meshRef.current.position.copy(ref.current.position);
+    }
+  });
 
-      if (typeof ref !== 'function' && ref?.current && meshRef.current) {
-        const distance = ref.current.position.distanceTo(
-          meshRef.current.position
-        );
+  return (
+    <mesh ref={meshRef}>
+      <sphereGeometry args={[0.01, 15, 15]} />
+      <meshStandardMaterial color={color} />
+    </mesh>
+  );
+}
 
-        const colliding = distance <= size;
-        onCollision?.(colliding, handIndex);
-      }
-    });
+function Cube() {
+  const [color, setColor] = useState('green');
+  const [ref] = useBox(() => ({
+    mass: 0,
+    position: [0, 1, -0.5],
+    args: [0.5, 0.5, 0.5],
+    onCollide: () => {
+      console.log("it still doesn't run here");
+      setColor('red');
+    },
+  }));
 
-    return (
-      <mesh
-        ref={(instance) => {
-          meshRef.current = instance;
-          if (typeof ref === 'function') {
-            ref(instance);
-          } else if (ref) {
-            ref.current = instance;
-          }
-        }}
-      >
-        <sphereGeometry args={[size, 15, 15]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
-    );
-  }
-);
-
-FingerTipSphere.displayName = 'FingerTipSphere';
+  return (
+    <mesh {...ref} position={[0, 1, -0.5]}>
+      <boxGeometry args={[0.5, 0.5, 0.5]} />
+      <meshStandardMaterial color={color} />
+    </mesh>
+  );
+}
 
 export default function Scene() {
-  const [sphere1Color, setSphere1Color] = useState('red');
-  const [sphere2Color, setSphere2Color] = useState('green');
-  const [sphere1Size, setSphere1Size] = useState(0.01);
-  const [sphere2Size, setSphere2Size] = useState(0.01);
-  const [colliding, setColliding] = useState(false);
-
-  const sphere1Ref = useRef<THREE.Mesh | null>(null);
-  const sphere2Ref = useRef<THREE.Mesh | null>(null);
-
-  const handleCollision = (colliding: boolean, handIndex: number) => {
-    if (handIndex === 0) {
-      setColliding(colliding);
-    }
-  };
-
-  useEffect(() => {
-    if (colliding) {
-      setSphere1Color('blue');
-      setSphere2Color('yellow');
-      setSphere1Size(0.015);
-      setSphere2Size(0.015);
-    } else {
-      setSphere1Color('red');
-      setSphere2Color('green');
-      setSphere1Size(0.01);
-      setSphere2Size(0.01);
-    }
-  }, [colliding]);
-
   return (
     <>
       <CustomARButton />
       <Canvas>
         <ambientLight intensity={0.25} />
-        <Environment background preset='sunset' blur={0.8} />
-        <XR>
-          <Hands />
-          <FingerTipSphere
-            handIndex={0}
-            color={sphere1Color}
-            size={sphere1Size}
-            ref={sphere1Ref}
-            onCollision={(colliding) => handleCollision(colliding, 0)}
-          />
-          <FingerTipSphere
-            handIndex={1}
-            color={sphere2Color}
-            size={sphere2Size}
-            ref={sphere2Ref}
-            onCollision={(colliding) => handleCollision(colliding, 1)}
-          />
-          <Stage
-            intensity={0.5}
-            environment='city'
-            shadows={{ type: 'accumulative', bias: -0.001 }}
-            adjustCamera={false}
-          >
-            <Grid />
-          </Stage>
-        </XR>
+        {/* <Environment background preset='sunset' blur={0.8} /> */}
+        <Physics>
+          <XR>
+            <Hands />
+            <FingerTipSphere handIndex={0} color='red' />
+            <FingerTipSphere handIndex={1} color='green' />
+            <Cube />
+            <Stage
+              intensity={0.5}
+              environment='city'
+              shadows={{ type: 'accumulative', bias: -0.001 }}
+              adjustCamera={false}
+            >
+              <Grid />
+            </Stage>
+          </XR>
+        </Physics>
       </Canvas>
     </>
   );
