@@ -44,24 +44,28 @@ function Sphere() {
 }
 
 export default function Scene() {
+  console.log('Scene rendered');
+
   return (
     <>
       <CustomARButton />
       <Canvas>
         <XR>
           <ambientLight intensity={0.25} />
-          {/* <Environment background preset='sunset' blur={0.8} /> */}
+          <Environment background preset='sunset' blur={0.8} />
           <Suspense fallback={undefined}>
             <Physics colliders='hull' gravity={[0, 0, 0]}>
               <RigidBody
-                onCollisionEnter={() => {
-                  console.log('colliding');
-                }}
+                colliders='hull'
+                onCollisionEnter={() => console.log('collided')}
               >
                 <Sphere />
-                <FingerTipSphere handIndex={0} color='red' />
-                <FingerTipSphere handIndex={1} color='green' />
               </RigidBody>
+
+              <RigidBody colliders='hull'>
+                <FingerTipSphere handIndex={0} color='red' />
+              </RigidBody>
+              <FingerTipSphere handIndex={1} color='green' />
               <Hands />
               <Stage
                 intensity={0.5}
