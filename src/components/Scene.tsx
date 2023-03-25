@@ -2,7 +2,7 @@ import { XR, Hands, useXR } from '@react-three/xr';
 import { Canvas, useFrame } from '@react-three/fiber';
 import CustomARButton from './CustomARButton';
 import { Environment, Grid, Stage } from '@react-three/drei';
-import { Physics, RigidBody } from '@react-three/rapier';
+import { Physics, RigidBody, CuboidCollider } from '@react-three/rapier';
 
 import { Suspense, useRef } from 'react';
 
@@ -36,10 +36,17 @@ function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
 
 function Sphere() {
   return (
-    <mesh position={[0, 1, -0.5]}>
-      <sphereGeometry args={[0.25, 50, 50]} />
-      <meshStandardMaterial color='blue' />
-    </mesh>
+    <RigidBody
+      position={[0, 1, -0.5]}
+      args={[0.25, 50, 50]}
+      colliders='ball'
+      onCollisionEnter={() => console.log('collided')}
+    >
+      <mesh position={[0, 2, -0.5]}>
+        <sphereGeometry args={[0.25, 50, 50]} />
+        <meshStandardMaterial color='blue' />
+      </mesh>
+    </RigidBody>
   );
 }
 
@@ -54,18 +61,13 @@ export default function Scene() {
           <ambientLight intensity={0.25} />
           <Environment background preset='sunset' blur={0.8} />
           <Suspense fallback={undefined}>
-            <Physics colliders='hull' gravity={[0, 0, 0]}>
-              <RigidBody
-                colliders='hull'
-                onCollisionEnter={() => console.log('collided')}
-              >
-                <Sphere />
-              </RigidBody>
+            <Physics colliders='hull'>
+              <Sphere />
+              <CuboidCollider position={[0, -2.5, 0]} args={[10, 1, 10]} />
 
-              <RigidBody colliders='hull'>
-                <FingerTipSphere handIndex={0} color='red' />
-              </RigidBody>
+              <FingerTipSphere handIndex={0} color='red' />
               <FingerTipSphere handIndex={1} color='green' />
+
               <Hands />
               <Stage
                 intensity={0.5}
