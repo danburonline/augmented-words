@@ -52,17 +52,17 @@ export default function Scene() {
           <ambientLight intensity={0.25} />
           {/* <Environment background preset='sunset' blur={0.8} /> */}
           <Suspense fallback={undefined}>
-            <Physics colliders='hull'>
+            <Physics colliders='hull' gravity={[0, 0, 0]}>
               <RigidBody
                 onCollisionEnter={() => {
                   console.log('colliding');
                 }}
               >
                 <Sphere />
+                <FingerTipSphere handIndex={0} color='red' />
+                <FingerTipSphere handIndex={1} color='green' />
               </RigidBody>
               <Hands />
-              <FingerTipSphere handIndex={0} color='red' />
-              <FingerTipSphere handIndex={1} color='green' />
               <Stage
                 intensity={0.5}
                 environment='city'
