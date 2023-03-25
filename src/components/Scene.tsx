@@ -18,6 +18,8 @@ function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
   const [ref] = useSphere(() => ({
     args: [0.01],
     type: 'Kinematic',
+    collisionFilterGroup: 2,
+    collisionFilterMask: 1,
   }));
 
   useFrame(() => {
@@ -46,8 +48,10 @@ function Cube() {
     mass: 0,
     position: [0, 1, -0.5],
     args: [0.5, 0.5, 0.5],
+    collisionFilterGroup: 1,
+    collisionFilterMask: 2,
     onCollide: () => {
-      console.log("it still doesn't run here");
+      console.log('it runs here');
       setColor('red');
     },
   }));
