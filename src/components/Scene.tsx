@@ -48,19 +48,19 @@ export default function Scene() {
     <>
       <CustomARButton />
       <Canvas>
-        <Suspense fallback={undefined}>
-          <Physics colliders='hull'>
-            <ambientLight intensity={0.25} />
-            {/* <Environment background preset='sunset' blur={0.8} /> */}
-            <XR>
+        <XR>
+          <ambientLight intensity={0.25} />
+          {/* <Environment background preset='sunset' blur={0.8} /> */}
+          <Suspense fallback={undefined}>
+            <Physics colliders='hull'>
               <RigidBody
                 onCollisionEnter={() => {
                   console.log('colliding');
                 }}
               >
-                <Hands />
+                <Sphere />
               </RigidBody>
-              <Sphere />
+              <Hands />
               <FingerTipSphere handIndex={0} color='red' />
               <FingerTipSphere handIndex={1} color='green' />
               <Stage
@@ -71,9 +71,9 @@ export default function Scene() {
               >
                 <Grid />
               </Stage>
-            </XR>
-          </Physics>
-        </Suspense>
+            </Physics>
+          </Suspense>
+        </XR>
       </Canvas>
     </>
   );
