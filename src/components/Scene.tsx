@@ -1,57 +1,30 @@
 import { XR, Hands, useXR } from '@react-three/xr';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Environment, Grid, Stage } from '@react-three/drei';
-import { Physics, useBox, useSphere } from '@react-three/cannon';
 import CustomARButton from './CustomARButton';
+import { Environment, Grid, Stage } from '@react-three/drei';
+import { Physics, RigidBody } from '@react-three/rapier';
 
-import { useCallback, useRef, useState } from 'react';
-import { Mesh } from 'three';
+import { Suspense, useRef } from 'react';
 
 type FingerTipSphereProps = {
   handIndex: number;
   color: string;
-  onCollide: () => void;
 };
 
-function FingerTipSphere({
-  handIndex,
-  color,
-  onCollide,
-}: FingerTipSphereProps) {
+function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
   const xr = useXR();
-  const meshRef = useRef<Mesh | null>(null);
-  const [ref] = useSphere(() => ({
-    args: [0.01],
-    type: 'Kinematic',
-    collisionFilterGroup: 2,
-    collisionFilterMask: 1,
-  }));
+  const meshRef = useRef<THREE.Mesh | null>(null);
 
   useFrame(() => {
     const joint = xr.controllers[handIndex]?.hand?.joints['index-finger-tip'];
-    if (meshRef.current && joint && ref.current) {
-      ref.current.position.set(
+    if (meshRef.current && joint) {
+      meshRef.current.position.set(
         joint.position.x,
         joint.position.y,
         joint.position.z
       );
-      meshRef.current.position.copy(ref.current.position);
-      meshRef.current.quaternion.copy(ref.current.quaternion);
     }
   });
-
-  useBox(
-    (boxRef) => ({
-      args: [0.5, 0.5, 0.5],
-      onCollide: () => {
-        onCollide();
-      },
-      collisionFilterGroup: 1,
-      collisionFilterMask: 2,
-      ref: boxRef,
-    }),
-    [ref]
-  );
 
   return (
     <mesh ref={meshRef}>
@@ -61,36 +34,11 @@ function FingerTipSphere({
   );
 }
 
-function Cube() {
-  const [color, setColor] = useState('green');
-  const handleCollide = useCallback(() => {
-    setColor('red');
-  }, []);
-
-  const [ref] = useBox(() => ({
-    mass: 0,
-    position: [0, 1, -0.5],
-    args: [0.5, 0.5, 0.5],
-    collisionFilterGroup: 1,
-    collisionFilterMask: 2,
-    onCollide: () => {
-      handleCollide();
-    },
-  }));
-
-  const meshRef = useRef<Mesh | null>(null);
-
-  useFrame(() => {
-    if (meshRef.current && ref.current) {
-      meshRef.current.position.copy(ref.current.position);
-      meshRef.current.quaternion.copy(ref.current.quaternion);
-    }
-  });
-
+function Sphere() {
   return (
-    <mesh ref={meshRef} position={[0, 1, -0.5]}>
-      <boxGeometry args={[0.5, 0.5, 0.5]} />
-      <meshStandardMaterial color={color} />
+    <mesh position={[0, 1, -0.5]}>
+      <sphereGeometry args={[0.25, 50, 50]} />
+      <meshStandardMaterial color='blue' />
     </mesh>
   );
 }
@@ -100,31 +48,32 @@ export default function Scene() {
     <>
       <CustomARButton />
       <Canvas>
-        <ambientLight intensity={0.25} />
-        <Physics>
-          <XR>
-            <Hands />
-            <FingerTipSphere
-              handIndex={0}
-              color='red'
-              onCollide={() => console.log('Collided with red sphere')}
-            />
-            <FingerTipSphere
-              handIndex={1}
-              color='green'
-              onCollide={() => console.log('Collided with green sphere')}
-            />
-            <Cube />
-            <Stage
-              intensity={0.5}
-              environment='city'
-              shadows={{ type: 'accumulative', bias: -0.001 }}
-              adjustCamera={false}
-            >
-              <Grid />
-            </Stage>
-          </XR>
-        </Physics>
+        <Suspense fallback={undefined}>
+          <Physics colliders='hull'>
+            <ambientLight intensity={0.25} />
+            {/* <Environment background preset='sunset' blur={0.8} /> */}
+            <XR>
+              <RigidBody
+                onCollisionEnter={() => {
+                  console.log('colliding');
+                }}
+              >
+                <Hands />
+              </RigidBody>
+              <Sphere />
+              <FingerTipSphere handIndex={0} color='red' />
+              <FingerTipSphere handIndex={1} color='green' />
+              <Stage
+                intensity={0.5}
+                environment='city'
+                shadows={{ type: 'accumulative', bias: -0.001 }}
+                adjustCamera={false}
+              >
+                <Grid />
+              </Stage>
+            </XR>
+          </Physics>
+        </Suspense>
       </Canvas>
     </>
   );
