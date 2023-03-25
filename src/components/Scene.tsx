@@ -2,18 +2,25 @@ import { XR, Hands, useXR } from '@react-three/xr';
 import { Canvas, useFrame } from '@react-three/fiber';
 import CustomARButton from './CustomARButton';
 import { Environment, Grid, Stage } from '@react-three/drei';
+
 import { useRef } from 'react';
 
-function FingerTipSphere() {
+type FingerTipSphereProps = {
+  handIndex: number;
+  color: string;
+};
+
+function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
   const xr = useXR();
   const meshRef = useRef<THREE.Mesh | null>(null);
 
   useFrame(() => {
-    if (meshRef.current && xr.controllers[0]?.hand.joints['index-finger-tip']) {
+    const joint = xr.controllers[handIndex]?.hand?.joints['index-finger-tip'];
+    if (meshRef.current && joint) {
       meshRef.current.position.set(
-        xr.controllers[0].hand.joints['index-finger-tip'].position.x,
-        xr.controllers[0].hand.joints['index-finger-tip'].position.y,
-        xr.controllers[0].hand.joints['index-finger-tip'].position.z
+        joint.position.x,
+        joint.position.y,
+        joint.position.z
       );
     }
   });
@@ -21,7 +28,7 @@ function FingerTipSphere() {
   return (
     <mesh ref={meshRef}>
       <sphereGeometry args={[0.01, 15, 15]} />
-      <meshStandardMaterial color='green' />
+      <meshStandardMaterial color={color} />
     </mesh>
   );
 }
@@ -35,7 +42,8 @@ export default function Scene() {
         <Environment background preset='sunset' blur={0.8} />
         <XR>
           <Hands />
-          <FingerTipSphere />
+          <FingerTipSphere handIndex={0} color='red' />
+          <FingerTipSphere handIndex={1} color='green' />
           <Stage
             intensity={0.5}
             environment='city'
