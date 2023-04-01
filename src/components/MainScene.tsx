@@ -66,7 +66,7 @@ function Sphere() {
   );
 }
 
-export default function Scene() {
+export default function MainScene() {
   console.log('Scene rendered');
 
   return (

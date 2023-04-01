@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import Scene from '../components/Scene';
+import MainScene from '../components/MainScene';
 
 export default function Index() {
   return (
@@ -15,7 +15,7 @@ export default function Index() {
           width: '100vw',
         }}
       >
-        <Scene />
+        <MainScene />
       </main>
     </>
   );
