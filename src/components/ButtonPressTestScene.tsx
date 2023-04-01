@@ -1,20 +1,27 @@
-import { Environment, Grid, Stage, OrbitControls } from '@react-three/drei';
+import { Environment, OrbitControls, Sky, Stats } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
+import { Perf } from 'r3f-perf';
+
+function Cube() {
+  return (
+    <mesh>
+      <boxBufferGeometry args={[1, 1, 1]} />
+      <meshStandardMaterial color='red' />
+    </mesh>
+  );
+}
 
 export function ButtonPressTestScene() {
   return (
-    <Canvas>
+    <Canvas camera={{ position: [1, 1, 0] }}>
+      <Perf position='top-right' />
+      <Stats />
       <OrbitControls />
-      <ambientLight intensity={0.25} />
+      <Cube />
+      <ambientLight intensity={0.125} />
       <Environment background preset='sunset' blur={0.8} />
-      <Stage
-        intensity={0.5}
-        environment='city'
-        shadows={{ type: 'accumulative', bias: -0.001 }}
-        adjustCamera={false}
-      >
-        <Grid />
-      </Stage>
+      <Sky sunPosition={[0, 10, 0]} turbidity={10} />
+      <fog args={['#000', 0, 500]} />
     </Canvas>
   );
 }
