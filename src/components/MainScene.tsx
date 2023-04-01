@@ -71,7 +71,9 @@ export default function MainScene() {
 
   return (
     <>
-      <CustomARButton />
+      <div style={{ position: 'fixed', zIndex: '10' }}>
+        <CustomARButton />
+      </div>
       <Canvas>
         <XR>
           <ambientLight intensity={0.25} />
