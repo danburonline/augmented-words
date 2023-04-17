@@ -1,10 +1,7 @@
-import { XRButton, XRButtonProps } from '@react-three/xr';
-import React from 'react';
+import { XRButton, XRButtonProps } from '@react-three/xr'
+import React from 'react'
 
-export const ImmersiveARButton = React.forwardRef<
-  HTMLButtonElement,
-  Omit<XRButtonProps, 'mode'>
->(
+export const ImmersiveARButton = React.forwardRef<HTMLButtonElement, Omit<XRButtonProps, 'mode'>>(
   (
     {
       sessionInit = {
@@ -13,19 +10,19 @@ export const ImmersiveARButton = React.forwardRef<
           'bounded-floor',
           'hand-tracking',
           'layers',
-          'plane-detection',
-        ],
+          'plane-detection'
+        ]
       },
       children,
       ...rest
     },
     ref
   ) => (
-    <XRButton {...rest} ref={ref} mode='AR' sessionInit={sessionInit}>
+    <XRButton {...rest} ref={ref} mode="AR" sessionInit={sessionInit}>
       {children}
     </XRButton>
   )
-);
+)
 
-ImmersiveARButton.displayName = 'ImmersiveARButton';
-export default ImmersiveARButton;
+ImmersiveARButton.displayName = 'ImmersiveARButton'
+export default ImmersiveARButton

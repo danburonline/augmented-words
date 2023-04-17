@@ -12,7 +12,9 @@ specifiers:
   '@types/three': 0.149.0
   eslint: 8.32.0
   eslint-config-next: 13.1.6
+  eslint-config-prettier: ^8.8.0
   next: 13.1.6
+  prettier: 2.8.7
   r3f-perf: 7.1.2
   react: 18.2.0
   react-dom: 18.2.0
@@ -37,6 +39,8 @@ devDependencies:
   '@types/three': 0.149.0
   eslint: 8.32.0
   eslint-config-next: 13.1.6_7uibuqfxkfaozanbtbziikiqje
+  eslint-config-prettier: 8.8.0_eslint@8.32.0
+  prettier: 2.8.7
   r3f-perf: 7.1.2_v5bzzvmggqduoi2tbrmqm75vsi
   typescript: 4.9.4
 
@@ -1006,6 +1010,15 @@ packages:
     transitivePeerDependencies:
       - eslint-import-resolver-webpack
       - supports-color
+    dev: true
+
+  /eslint-config-prettier/8.8.0_eslint@8.32.0:
+    resolution: {integrity: sha512-wLbQiFre3tdGgpDv67NQKnJuTlcUVYHas3k+DZCc2U2BadthoEY4B7hLPvAxaqdyOGCzuLfii2fqGph10va7oA==}
+    hasBin: true
+    peerDependencies:
+      eslint: '>=7.0.0'
+    dependencies:
+      eslint: 8.32.0
     dev: true
 
   /eslint-import-resolver-node/0.3.7:
@@ -2101,6 +2114,12 @@ packages:
   /prelude-ls/1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
+    dev: true
+
+  /prettier/2.8.7:
+    resolution: {integrity: sha512-yPngTo3aXUUmyuTjeTUT75txrf+aMh9FiD7q9ZE/i6r0bPb22g4FsE6Y338PQX1bmfy08i9QQCB7/rcUAVntfw==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
     dev: true
 
   /prop-types/15.8.1:

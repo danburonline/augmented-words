@@ -1,12 +1,11 @@
 {
-  "name": "my-app",
-  "version": "0.1.0",
-  "private": true,
+  "name": "augmented-words",
   "scripts": {
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "format": "pnpm prettier --write \"**/*.{js,ts,tsx,scss,json,md,mdx}\""
   },
   "dependencies": {
     "@next/font": "13.1.6",
@@ -26,6 +25,8 @@
     "@types/three": "0.149.0",
     "eslint": "8.32.0",
     "eslint-config-next": "13.1.6",
+    "eslint-config-prettier": "^8.8.0",
+    "prettier": "2.8.7",
     "r3f-perf": "7.1.2",
     "typescript": "4.9.4"
   }
