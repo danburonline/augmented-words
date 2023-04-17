@@ -3,9 +3,9 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
+    "format": "pnpm prettier --write \"**/*.{js,ts,tsx,scss,json,md,mdx}\"",
     "lint": "next lint",
-    "start": "next start",
-    "format": "pnpm prettier --write \"**/*.{js,ts,tsx,scss,json,md,mdx}\""
+    "start": "next start"
   },
   "dependencies": {
     "@next/font": "13.1.6",
