@@ -1,9 +1,10 @@
-import { XR, Hands, useXR } from '@react-three/xr'
+import { XR, Hands, useXR, Interactive, XRInteractionEvent } from '@react-three/xr'
 import { Canvas, useFrame } from '@react-three/fiber'
 import CustomARButton from '../components/CustomARButton'
 import { Grid } from '@react-three/drei'
 
-import { Suspense, useRef } from 'react'
+import { Suspense, useRef, useState } from 'react'
+import * as THREE from 'three'
 
 enum handIndex {
   left = 0,
@@ -27,7 +28,7 @@ function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
   })
 
   return (
-    <mesh ref={meshRef}>
+    <mesh ref={meshRef} name="fingertip">
       <sphereGeometry args={[0.01, 15, 15]} />
       <meshStandardMaterial color={color} />
     </mesh>
@@ -35,11 +36,33 @@ function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
 }
 
 function Sphere() {
+  const [color, setColor] = useState('blue')
+  const sphereRef = useRef<THREE.Mesh | null>(null)
+
+  const fingerTipLeft = useXR(
+    (state) => state.controllers[handIndex.left]?.hand?.joints['index-finger-tip']
+  )
+  const fingerTipRight = useXR(
+    (state) => state.controllers[handIndex.right]?.hand?.joints['index-finger-tip']
+  )
+
+  useFrame(() => {
+    if (
+      sphereRef.current &&
+      ((fingerTipLeft && sphereRef.current.position.distanceTo(fingerTipLeft.position) < 0.25) ||
+        (fingerTipRight && sphereRef.current.position.distanceTo(fingerTipRight.position) < 0.25))
+    ) {
+      setColor('orange')
+    }
+  })
+
   return (
-    <mesh position={[0, 2, -0.5]}>
-      <sphereGeometry args={[0.25, 50, 50]} />
-      <meshStandardMaterial color="blue" />
-    </mesh>
+    <Interactive>
+      <mesh ref={sphereRef} position={[0, 2, -0.5]} name="mainSphere">
+        <sphereGeometry args={[0.25, 50, 50]} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+    </Interactive>
   )
 }
 
