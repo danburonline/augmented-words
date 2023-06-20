@@ -28,7 +28,7 @@ function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
   })
 
   return (
-    <mesh ref={meshRef} name="fingertip">
+    <mesh ref={meshRef} name="fingerTipSphere">
       <sphereGeometry args={[0.01, 15, 15]} />
       <meshStandardMaterial color={color} />
     </mesh>
@@ -47,18 +47,28 @@ function Sphere() {
   )
 
   useFrame(() => {
-    if (
-      sphereRef.current &&
-      ((fingerTipLeft && sphereRef.current.position.distanceTo(fingerTipLeft.position) < 0.25) ||
-        (fingerTipRight && sphereRef.current.position.distanceTo(fingerTipRight.position) < 0.25))
-    ) {
-      setColor('orange')
+    if (sphereRef.current) {
+      const leftDistance = fingerTipLeft
+        ? sphereRef.current.position.distanceTo(fingerTipLeft.position)
+        : null
+      const rightDistance = fingerTipRight
+        ? sphereRef.current.position.distanceTo(fingerTipRight.position)
+        : null
+
+      if (
+        (leftDistance !== null && leftDistance < 0.25) ||
+        (rightDistance !== null && rightDistance < 0.25)
+      ) {
+        setColor('orange')
+      } else {
+        setColor('blue')
+      }
     }
   })
 
   return (
     <Interactive>
-      <mesh ref={sphereRef} position={[0, 2, -0.5]} name="mainSphere">
+      <mesh ref={sphereRef} position={[0, 2, -0.5]} name="exampleSphere">
         <sphereGeometry args={[0.25, 50, 50]} />
         <meshStandardMaterial color={color} />
       </mesh>
