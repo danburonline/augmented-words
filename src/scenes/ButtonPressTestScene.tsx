@@ -1,4 +1,4 @@
-import { Environment, OrbitControls, Sky, Stats } from '@react-three/drei'
+import { OrbitControls, Sky, Stats } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { Perf } from 'r3f-perf'
 
@@ -19,7 +19,6 @@ export function ButtonPressTestScene() {
       <OrbitControls />
       <Cube />
       <ambientLight intensity={0.125} />
-      <Environment background preset="sunset" blur={0.8} />
       <Sky sunPosition={[0, 10, 0]} turbidity={10} />
       <fog args={['#000', 0, 500]} />
     </Canvas>
