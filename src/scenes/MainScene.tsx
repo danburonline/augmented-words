@@ -215,6 +215,12 @@ function Sphere({ createRandomLetter }: SphereProps) {
   }
 
   useFrame(() => {
+    if (sphereRef.current && fingerTipLeft) {
+      sphereRef.current.position.x = fingerTipLeft.position.x - 0.2
+      sphereRef.current.position.y = fingerTipLeft.position.y + 0.2
+      sphereRef.current.position.z = fingerTipLeft.position.z - 0.2
+    }
+
     if (sphereRef.current) {
       const leftDistance = fingerTipLeft
         ? sphereRef.current.position.distanceTo(fingerTipLeft.position)
@@ -239,7 +245,7 @@ function Sphere({ createRandomLetter }: SphereProps) {
   return (
     <Interactive>
       <mesh ref={sphereRef} position={[0, 2, -0.5]} name="exampleSphere">
-        <sphereGeometry args={[0.25, 50, 50]} />
+        <sphereGeometry args={[0.05, 50, 50]} />
         <meshStandardMaterial color={color} />
       </mesh>
     </Interactive>
@@ -282,7 +288,7 @@ export default function MainScene() {
 
   return (
     <>
-      <div style={{ position: 'fixed', zIndex: '10' }}>
+      <div style={{ position: 'fixed', right: 0, padding: '20px', zIndex: '10' }}>
         <CustomARButton />
       </div>
       <Canvas gl={{ preserveDrawingBuffer: true }}>
