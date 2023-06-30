@@ -5,7 +5,7 @@ import { useTexture } from '@react-three/drei'
 import { XR, Hands, useXR, Interactive } from '@react-three/xr'
 import { DoubleSide, LinearFilter, Mesh, PerspectiveCamera } from 'three'
 
-import { FormEvent, ReactNode, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { renderToString } from 'react-dom/server'
 
 import CustomARButton from '../components/CustomARButton'
@@ -277,7 +277,6 @@ export default function MainScene() {
 
   function createRandomLetterHandler() {
     let randomLetter = createRandomLetter()
-    console.log(randomLetter)
     setFormText(randomLetter)
   }
 
@@ -286,16 +285,15 @@ export default function MainScene() {
       <div style={{ position: 'fixed', zIndex: '10' }}>
         <CustomARButton />
       </div>
-      <Canvas>
+      <Canvas gl={{ preserveDrawingBuffer: true }}>
         <XR>
           <ambientLight intensity={0.25} />
           <Suspense fallback={undefined}>
             <Sphere createRandomLetter={createRandomLetterHandler} />
-            <Interactive>
-              <Html width={4}>
-                <InputForm givenText={formText} />
-              </Html>
-            </Interactive>
+
+            <Html width={4}>
+              <InputForm givenText={formText} />
+            </Html>
 
             <FingerTipSphere handIndex={HAND_INDEX.left} color="red" />
             <FingerTipSphere handIndex={HAND_INDEX.right} color="green" />
