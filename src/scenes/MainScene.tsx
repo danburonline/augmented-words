@@ -218,8 +218,8 @@ function Sphere({ createRandomLetter }: SphereProps) {
 
   useFrame(() => {
     if (sphereRef.current && wristLeft) {
-      sphereRef.current.position.x = wristLeft.position.x
-      sphereRef.current.position.y = wristLeft.position.y
+      sphereRef.current.position.x = wristLeft.position.x - 0.075
+      sphereRef.current.position.y = wristLeft.position.y + 0.03
       sphereRef.current.position.z = wristLeft.position.z
     }
 
@@ -285,7 +285,7 @@ export default function MainScene() {
 
   function createRandomLetterHandler() {
     let randomLetter = createRandomLetter()
-    setFormText(randomLetter)
+    setFormText((prev) => prev + randomLetter)
   }
 
   return (
