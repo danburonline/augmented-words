@@ -207,6 +207,8 @@ function Sphere({ createRandomLetter }: SphereProps) {
     (state) => state.controllers[HAND_INDEX.right]?.hand?.joints['index-finger-tip']
   )
 
+  const wristLeft = useXR((state) => state.controllers[HAND_INDEX.left]?.hand?.joints['wrist'])
+
   function createRandomLetterOnce() {
     if (!randomLetterWasCreated) {
       createRandomLetter()
@@ -215,10 +217,10 @@ function Sphere({ createRandomLetter }: SphereProps) {
   }
 
   useFrame(() => {
-    if (sphereRef.current && fingerTipLeft) {
-      sphereRef.current.position.x = fingerTipLeft.position.x - 0.2
-      sphereRef.current.position.y = fingerTipLeft.position.y + 0.2
-      sphereRef.current.position.z = fingerTipLeft.position.z - 0.2
+    if (sphereRef.current && wristLeft) {
+      sphereRef.current.position.x = wristLeft.position.x
+      sphereRef.current.position.y = wristLeft.position.y
+      sphereRef.current.position.z = wristLeft.position.z
     }
 
     if (sphereRef.current) {
@@ -230,8 +232,8 @@ function Sphere({ createRandomLetter }: SphereProps) {
         : null
 
       if (
-        (leftDistance !== null && leftDistance < 0.25) ||
-        (rightDistance !== null && rightDistance < 0.25)
+        (leftDistance !== null && leftDistance < 0.01) ||
+        (rightDistance !== null && rightDistance < 0.01)
       ) {
         setColor('orange')
         createRandomLetterOnce()
@@ -244,8 +246,8 @@ function Sphere({ createRandomLetter }: SphereProps) {
 
   return (
     <Interactive>
-      <mesh ref={sphereRef} position={[0, 2, -0.5]} name="exampleSphere">
-        <sphereGeometry args={[0.05, 50, 50]} />
+      <mesh ref={sphereRef} name="exampleSphere">
+        <sphereGeometry args={[0.01, 50, 50]} />
         <meshStandardMaterial color={color} />
       </mesh>
     </Interactive>
