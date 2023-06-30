@@ -17,9 +17,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    },
-    "types": ["@react-three/fiber"]
+    }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "."],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }

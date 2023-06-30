@@ -1,5 +1,0 @@
-{
-  "$schema": "https://unpkg.com/@triplex/run/config.schema.json",
-  "components": ["../src/components/*.tsx"],
-  "files": ["../src/**/*.tsx", "../packages/**/*.tsx"]
-}
