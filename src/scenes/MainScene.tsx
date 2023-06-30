@@ -1,13 +1,14 @@
-import { XR, Hands, useXR, Interactive } from '@react-three/xr'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import CustomARButton from '../components/CustomARButton'
-import { useTexture } from '@react-three/drei'
 import html2canvas from 'html2canvas'
 
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { useTexture } from '@react-three/drei'
+import { XR, Hands, useXR, Interactive } from '@react-three/xr'
+import { DoubleSide, LinearFilter, Mesh, PerspectiveCamera } from 'three'
+
 import { FormEvent, ReactNode, Suspense, useEffect, useMemo, useRef, useState } from 'react'
-import * as THREE from 'three'
-import React from 'react'
 import { renderToString } from 'react-dom/server'
+
+import CustomARButton from '../components/CustomARButton'
 
 enum HAND_INDEX {
   left = 0,
@@ -34,14 +35,14 @@ function Html({ children, width, height, color = 'transparent' }: HtmlProps) {
   const { camera, size: viewSize, gl } = useThree()
 
   const sceneSize = useMemo(() => {
-    const cam = camera as THREE.PerspectiveCamera
+    const cam = camera as PerspectiveCamera
     const fov = (cam.fov * Math.PI) / 180 // Convert vertical fov to radians
     const height = 2 * Math.tan(fov / 2) * 5 // Visible height
     const width = height * (viewSize.width / viewSize.height)
     return { width, height }
   }, [camera, viewSize])
 
-  const lastUrl = useRef(null)
+  const lastUrl = useRef<string | null>(null)
   const containerRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
@@ -60,13 +61,15 @@ function Html({ children, width, height, color = 'transparent' }: HtmlProps) {
       containerRef.current = container
 
       // Modify the prototype of HTMLCanvasElement
-      HTMLCanvasElement.prototype.getContext = (function (originalFn) {
-        return function (type: string, attribs?: any) {
-          attribs = attribs || {}
-          attribs.preserveDrawingBuffer = true
-          return originalFn.call(this, type, attribs)
-        }
-      })(HTMLCanvasElement.prototype.getContext)
+      const originalGetContext = HTMLCanvasElement.prototype.getContext
+      HTMLCanvasElement.prototype.getContext = function (
+        contextId: '2d' | 'bitmaprenderer' | 'webgl' | 'webgl2',
+        options?: any
+      ): any {
+        options = options || {}
+        options.preserveDrawingBuffer = true
+        return originalGetContext.call(this, contextId, options)
+      }
     }
   }, [])
 
@@ -77,28 +80,30 @@ function Html({ children, width, height, color = 'transparent' }: HtmlProps) {
 
   const node = useMemo(() => {
     const node = document.createElement('div')
-    node.innerHTML = renderToString(children)
+    node.innerHTML = renderToString(children as React.ReactElement)
     return node
   }, [children])
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      HTMLCanvasElement.prototype.getContext = (function (origFn) {
-        return function (type, attribs) {
-          attribs = attribs || {}
-          attribs.preserveDrawingBuffer = true
-          return origFn.call(this, type, attribs)
-        }
-      })(HTMLCanvasElement.prototype.getContext)
+      const originalGetContext = HTMLCanvasElement.prototype.getContext
+      HTMLCanvasElement.prototype.getContext = function (
+        contextId: '2d' | 'bitmaprenderer' | 'webgl' | 'webgl2',
+        options?: any
+      ): any {
+        options = options || {}
+        options.preserveDrawingBuffer = true
+        return originalGetContext.call(this, contextId, options)
+      }
     }
   }, [])
 
   useEffect(() => {
-    containerRef.current.appendChild(node)
+    containerRef.current?.appendChild(node)
     html2canvas(node, { backgroundColor: color }).then((canvas) => {
       setTextureSize({ width: canvas.width, height: canvas.height })
-      if (containerRef.current.contains(node)) {
-        containerRef.current.removeChild(node)
+      if (containerRef.current?.contains(node)) {
+        containerRef.current?.removeChild(node)
       }
       canvas.toBlob((blob) => {
         if (blob === null) return
@@ -110,10 +115,10 @@ function Html({ children, width, height, color = 'transparent' }: HtmlProps) {
         setImage(url)
       })
     })
+
     return () => {
-      if (!containerRef.current) return
-      if (containerRef.current.contains(node)) {
-        containerRef.current.removeChild(node)
+      if (containerRef.current?.contains(node)) {
+        containerRef.current?.removeChild(node)
       }
     }
   }, [node, viewSize, sceneSize, color])
@@ -124,7 +129,7 @@ function Html({ children, width, height, color = 'transparent' }: HtmlProps) {
     const imageAspectW = texture.image.height / texture.image.width
     const imageAspectH = texture.image.width / texture.image.height
 
-    const cam = camera as THREE.PerspectiveCamera
+    const cam = camera as PerspectiveCamera
     const fov = (cam.fov * Math.PI) / 180 // convert vertical fov to radians
 
     let h = 2 * Math.tan(fov / 2) * 5 // visible height
@@ -154,7 +159,7 @@ function Html({ children, width, height, color = 'transparent' }: HtmlProps) {
     const aspect = size.width / size.height
     const imageAspect = texture.image.width / texture.image.height
     texture.anisotropy = gl.capabilities.getMaxAnisotropy()
-    texture.minFilter = THREE.LinearFilter
+    texture.minFilter = LinearFilter
     if (aspect < imageAspect) {
       texture.matrix.setUvTransform(0, 0, 1, imageAspect / aspect, 0, 0.5, 0.5)
     } else {
@@ -165,14 +170,14 @@ function Html({ children, width, height, color = 'transparent' }: HtmlProps) {
   return (
     <mesh>
       <planeGeometry args={[size.width, size.height]} />
-      <meshBasicMaterial map={texture} side={THREE.DoubleSide} transparent />
+      <meshBasicMaterial map={texture} side={DoubleSide} transparent />
     </mesh>
   )
 }
 
 function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
   const xr = useXR()
-  const meshRef = useRef<THREE.Mesh | null>(null)
+  const meshRef = useRef<Mesh | null>(null)
 
   useFrame(() => {
     const joint = xr.controllers[handIndex]?.hand?.joints['index-finger-tip']
@@ -191,7 +196,7 @@ function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
 
 function Sphere({ createRandomLetter }: SphereProps) {
   const [color, setColor] = useState('blue')
-  const sphereRef = useRef<THREE.Mesh | null>(null)
+  const sphereRef = useRef<Mesh | null>(null)
 
   const fingerTipLeft = useXR(
     (state) => state.controllers[HAND_INDEX.left]?.hand?.joints['index-finger-tip']
