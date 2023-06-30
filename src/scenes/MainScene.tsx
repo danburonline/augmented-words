@@ -1,7 +1,7 @@
 import { XR, Hands, useXR, Interactive, XRInteractionEvent } from '@react-three/xr'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import CustomARButton from '../components/CustomARButton'
-import { Grid, useTexture } from '@react-three/drei'
+import { Grid, Stats, useTexture } from '@react-three/drei'
 import html2canvas from 'html2canvas'
 
 import { Suspense, useRef, useState } from 'react'
@@ -274,6 +274,7 @@ export default function MainScene() {
       <div style={{ position: 'fixed', zIndex: '10' }}>
         <CustomARButton />
       </div>
+      <Stats />
       <Canvas>
         <XR>
           <ambientLight intensity={0.25} />

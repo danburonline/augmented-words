@@ -28,7 +28,6 @@
     "eslint-config-next": "13.1.6",
     "eslint-config-prettier": "^8.8.0",
     "prettier": "2.8.7",
-    "r3f-perf": "7.1.2",
     "typescript": "4.9.4"
   }
 }
