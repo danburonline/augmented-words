@@ -4,7 +4,7 @@ import CustomARButton from '../components/CustomARButton'
 import { Grid, useTexture } from '@react-three/drei'
 import html2canvas from 'html2canvas'
 
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { Suspense, useRef, useState } from 'react'
 import * as THREE from 'three'
 import React from 'react'
 import { renderToString } from 'react-dom/server'
@@ -151,7 +151,7 @@ function Html({ children, width, height, color = 'transparent' }) {
     } else {
       texture.matrix.setUvTransform(0, 0, aspect / imageAspect, 1, 0, 0.5, 0.5)
     }
-  }, [texture, size, textureSize])
+  }, [texture, size, gl.capabilities])
 
   return (
     <mesh>
@@ -237,7 +237,7 @@ function InputForm(props: { givenText?: string }) {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log(text)
+    console.log('This is the form text: ', text)
   }
 
   return (
@@ -279,9 +279,11 @@ export default function MainScene() {
           <ambientLight intensity={0.25} />
           <Suspense fallback={undefined}>
             <Sphere createRandomLetter={createRandomLetterHandler} />
-            <Html width={2} height={1}>
-              <InputForm givenText={formText} />
-            </Html>
+            <Interactive>
+              <Html width={2} height={1}>
+                <InputForm givenText={formText} />
+              </Html>
+            </Interactive>
 
             <FingerTipSphere handIndex={handIndex.left} color="red" />
             <FingerTipSphere handIndex={handIndex.right} color="green" />
