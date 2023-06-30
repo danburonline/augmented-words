@@ -1,15 +1,15 @@
-import { XR, Hands, useXR, Interactive, XRInteractionEvent } from '@react-three/xr'
+import { XR, Hands, useXR, Interactive } from '@react-three/xr'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import CustomARButton from '../components/CustomARButton'
-import { Grid, Stats, useTexture } from '@react-three/drei'
+import { useTexture } from '@react-three/drei'
 import html2canvas from 'html2canvas'
 
-import { Suspense, useRef, useState } from 'react'
+import { FormEvent, ReactNode, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 import React from 'react'
 import { renderToString } from 'react-dom/server'
 
-enum handIndex {
+enum HAND_INDEX {
   left = 0,
   right = 1
 }
@@ -23,56 +23,65 @@ type SphereProps = {
   createRandomLetter: () => void
 }
 
-function Html({ children, width, height, color = 'transparent' }) {
+type HtmlProps = {
+  children: ReactNode
+  width?: number
+  height?: number
+  color?: string
+}
+
+function Html({ children, width, height, color = 'transparent' }: HtmlProps) {
   const { camera, size: viewSize, gl } = useThree()
 
-  const sceneSize = React.useMemo(() => {
+  const sceneSize = useMemo(() => {
     const cam = camera as THREE.PerspectiveCamera
-    const fov = (cam.fov * Math.PI) / 180 // convert vertical fov to radians
-    const height = 2 * Math.tan(fov / 2) * 5 // visible height
+    const fov = (cam.fov * Math.PI) / 180 // Convert vertical fov to radians
+    const height = 2 * Math.tan(fov / 2) * 5 // Visible height
     const width = height * (viewSize.width / viewSize.height)
     return { width, height }
   }, [camera, viewSize])
 
-  const lastUrl = React.useRef(null)
+  const lastUrl = useRef(null)
+  const containerRef = useRef<HTMLElement | null>(null)
 
-  const containerRef = React.useRef(null)
-
-  React.useEffect(() => {
+  useEffect(() => {
     if (typeof window !== 'undefined') {
-      containerRef.current = document.querySelector('#htmlContainer')
-      if (!containerRef.current) {
-        const node = document.createElement('div')
-        node.setAttribute('id', 'htmlContainer')
-        node.style.position = 'fixed'
-        node.style.opacity = '0'
-        node.style.pointerEvents = 'none'
-        document.body.appendChild(node)
-        containerRef.current = node
+      let container = document.querySelector('#htmlContainer') as HTMLElement
+
+      if (!container) {
+        container = document.createElement('div')
+        container.setAttribute('id', 'htmlContainer')
+        container.style.position = 'fixed'
+        container.style.opacity = '0'
+        container.style.pointerEvents = 'none'
+        document.body.appendChild(container)
       }
 
-      HTMLCanvasElement.prototype.getContext = (function (origFn) {
-        return function (type, attribs) {
+      containerRef.current = container
+
+      // Modify the prototype of HTMLCanvasElement
+      HTMLCanvasElement.prototype.getContext = (function (originalFn) {
+        return function (type: string, attribs?: any) {
           attribs = attribs || {}
           attribs.preserveDrawingBuffer = true
-          return origFn.call(this, type, attribs)
+          return originalFn.call(this, type, attribs)
         }
       })(HTMLCanvasElement.prototype.getContext)
     }
   }, [])
 
-  const [image, setImage] = React.useState(
+  const [image, setImage] = useState(
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
   )
-  const [textureSize, setTextureSize] = React.useState({ width, height })
+  const [_textureSize, setTextureSize] = useState({ width, height })
 
-  const node = React.useMemo(() => {
+  const node = useMemo(() => {
     const node = document.createElement('div')
     node.innerHTML = renderToString(children)
     return node
   }, [children])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       HTMLCanvasElement.prototype.getContext = (function (origFn) {
         return function (type, attribs) {
@@ -84,7 +93,7 @@ function Html({ children, width, height, color = 'transparent' }) {
     }
   }, [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     containerRef.current.appendChild(node)
     html2canvas(node, { backgroundColor: color }).then((canvas) => {
       setTextureSize({ width: canvas.width, height: canvas.height })
@@ -111,7 +120,7 @@ function Html({ children, width, height, color = 'transparent' }) {
 
   const texture = useTexture(image)
 
-  const size = React.useMemo(() => {
+  const size = useMemo(() => {
     const imageAspectW = texture.image.height / texture.image.width
     const imageAspectH = texture.image.width / texture.image.height
 
@@ -129,7 +138,7 @@ function Html({ children, width, height, color = 'transparent' }) {
     }
 
     if (height === undefined) {
-      h = width * imageAspectW
+      h = width ? width * imageAspectW : w * imageAspectW
     }
     if (width === undefined) {
       w = h * imageAspectH
@@ -140,7 +149,7 @@ function Html({ children, width, height, color = 'transparent' }) {
     }
   }, [texture, width, height, camera])
 
-  React.useMemo(() => {
+  useMemo(() => {
     texture.matrixAutoUpdate = false
     const aspect = size.width / size.height
     const imageAspect = texture.image.width / texture.image.height
@@ -185,10 +194,10 @@ function Sphere({ createRandomLetter }: SphereProps) {
   const sphereRef = useRef<THREE.Mesh | null>(null)
 
   const fingerTipLeft = useXR(
-    (state) => state.controllers[handIndex.left]?.hand?.joints['index-finger-tip']
+    (state) => state.controllers[HAND_INDEX.left]?.hand?.joints['index-finger-tip']
   )
   const fingerTipRight = useXR(
-    (state) => state.controllers[handIndex.right]?.hand?.joints['index-finger-tip']
+    (state) => state.controllers[HAND_INDEX.right]?.hand?.joints['index-finger-tip']
   )
 
   let randomLetterWasCreated = false
@@ -235,7 +244,7 @@ function Sphere({ createRandomLetter }: SphereProps) {
 function InputForm(props: { givenText?: string }) {
   const [text, setText] = useState(props.givenText || '')
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     console.log('This is the form text: ', text)
   }
@@ -274,7 +283,6 @@ export default function MainScene() {
       <div style={{ position: 'fixed', zIndex: '10' }}>
         <CustomARButton />
       </div>
-      <Stats />
       <Canvas>
         <XR>
           <ambientLight intensity={0.25} />
@@ -286,11 +294,10 @@ export default function MainScene() {
               </Html>
             </Interactive>
 
-            <FingerTipSphere handIndex={handIndex.left} color="red" />
-            <FingerTipSphere handIndex={handIndex.right} color="green" />
+            <FingerTipSphere handIndex={HAND_INDEX.left} color="red" />
+            <FingerTipSphere handIndex={HAND_INDEX.right} color="green" />
 
             <Hands />
-            <Grid />
           </Suspense>
         </XR>
       </Canvas>
