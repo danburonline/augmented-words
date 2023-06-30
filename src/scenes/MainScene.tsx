@@ -19,6 +19,10 @@ type FingerTipSphereProps = {
   color: string
 }
 
+type SphereProps = {
+  createRandomLetter: () => void
+}
+
 function Html({ children, width, height, color = 'transparent' }) {
   const { camera, size: viewSize, gl } = useThree()
 
@@ -32,19 +36,19 @@ function Html({ children, width, height, color = 'transparent' }) {
 
   const lastUrl = React.useRef(null)
 
-  let container = null
+  const containerRef = React.useRef(null)
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
-      container = document.querySelector('#htmlContainer')
-      if (!container) {
+      containerRef.current = document.querySelector('#htmlContainer')
+      if (!containerRef.current) {
         const node = document.createElement('div')
         node.setAttribute('id', 'htmlContainer')
         node.style.position = 'fixed'
         node.style.opacity = '0'
         node.style.pointerEvents = 'none'
         document.body.appendChild(node)
-        container = node
+        containerRef.current = node
       }
 
       HTMLCanvasElement.prototype.getContext = (function (origFn) {
@@ -81,11 +85,11 @@ function Html({ children, width, height, color = 'transparent' }) {
   }, [])
 
   React.useEffect(() => {
-    container.appendChild(node)
+    containerRef.current.appendChild(node)
     html2canvas(node, { backgroundColor: color }).then((canvas) => {
       setTextureSize({ width: canvas.width, height: canvas.height })
-      if (container.contains(node)) {
-        container.removeChild(node)
+      if (containerRef.current.contains(node)) {
+        containerRef.current.removeChild(node)
       }
       canvas.toBlob((blob) => {
         if (blob === null) return
@@ -98,9 +102,9 @@ function Html({ children, width, height, color = 'transparent' }) {
       })
     })
     return () => {
-      if (!container) return
-      if (container.contains(node)) {
-        container.removeChild(node)
+      if (!containerRef.current) return
+      if (containerRef.current.contains(node)) {
+        containerRef.current.removeChild(node)
       }
     }
   }, [node, viewSize, sceneSize, color])
@@ -151,7 +155,7 @@ function Html({ children, width, height, color = 'transparent' }) {
 
   return (
     <mesh>
-      <planeBufferGeometry args={[size.width, size.height]} />
+      <planeGeometry args={[size.width, size.height]} />
       <meshBasicMaterial map={texture} side={THREE.DoubleSide} transparent />
     </mesh>
   )
@@ -176,7 +180,7 @@ function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
   )
 }
 
-function Sphere() {
+function Sphere({ createRandomLetter }: SphereProps) {
   const [color, setColor] = useState('blue')
   const sphereRef = useRef<THREE.Mesh | null>(null)
 
@@ -186,6 +190,15 @@ function Sphere() {
   const fingerTipRight = useXR(
     (state) => state.controllers[handIndex.right]?.hand?.joints['index-finger-tip']
   )
+
+  let randomLetterWasCreated = false
+
+  function createRandomLetterOnce() {
+    if (!randomLetterWasCreated) {
+      createRandomLetter()
+      randomLetterWasCreated = true
+    }
+  }
 
   useFrame(() => {
     if (sphereRef.current) {
@@ -201,8 +214,10 @@ function Sphere() {
         (rightDistance !== null && rightDistance < 0.25)
       ) {
         setColor('orange')
+        createRandomLetterOnce()
       } else {
         setColor('blue')
+        randomLetterWasCreated = false
       }
     }
   })
@@ -217,17 +232,13 @@ function Sphere() {
   )
 }
 
-function InputForm() {
-  const [text, setText] = useState('')
+function InputForm(props: { givenText?: string }) {
+  const [text, setText] = useState(props.givenText || '')
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     console.log(text)
   }
-
-  useEffect(() => {
-    console.log('it appears')
-  })
 
   return (
     <form onSubmit={handleSubmit}>
@@ -244,6 +255,20 @@ function InputForm() {
 }
 
 export default function MainScene() {
+  const [formText, setFormText] = useState('HELLO')
+
+  function createRandomLetter() {
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    const randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)]
+    return randomLetter
+  }
+
+  function createRandomLetterHandler() {
+    let randomLetter = createRandomLetter()
+    console.log(randomLetter)
+    setFormText(randomLetter)
+  }
+
   return (
     <>
       <div style={{ position: 'fixed', zIndex: '10' }}>
@@ -253,9 +278,9 @@ export default function MainScene() {
         <XR>
           <ambientLight intensity={0.25} />
           <Suspense fallback={undefined}>
-            <Sphere />
-            <Html width={5} height={5}>
-              <InputForm />
+            <Sphere createRandomLetter={createRandomLetterHandler} />
+            <Html width={2} height={1}>
+              <InputForm givenText={formText} />
             </Html>
 
             <FingerTipSphere handIndex={handIndex.left} color="red" />
