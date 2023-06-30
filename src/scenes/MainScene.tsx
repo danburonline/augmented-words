@@ -196,6 +196,8 @@ function FingerTipSphere({ handIndex, color }: FingerTipSphereProps) {
 
 function Sphere({ createRandomLetter }: SphereProps) {
   const [color, setColor] = useState('blue')
+  const [randomLetterWasCreated, setRandomLetterCreated] = useState(false)
+
   const sphereRef = useRef<Mesh | null>(null)
 
   const fingerTipLeft = useXR(
@@ -205,12 +207,10 @@ function Sphere({ createRandomLetter }: SphereProps) {
     (state) => state.controllers[HAND_INDEX.right]?.hand?.joints['index-finger-tip']
   )
 
-  let randomLetterWasCreated = false
-
   function createRandomLetterOnce() {
     if (!randomLetterWasCreated) {
       createRandomLetter()
-      randomLetterWasCreated = true
+      setRandomLetterCreated(true)
     }
   }
 
@@ -231,7 +231,7 @@ function Sphere({ createRandomLetter }: SphereProps) {
         createRandomLetterOnce()
       } else {
         setColor('blue')
-        randomLetterWasCreated = false
+        setRandomLetterCreated(false)
       }
     }
   })
