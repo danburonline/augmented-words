@@ -303,8 +303,8 @@ export default function MainScene() {
               <InputForm givenText={formText} />
             </Html>
 
-            <FingerTipSphere handIndex={HAND_INDEX.left} color="red" />
-            <FingerTipSphere handIndex={HAND_INDEX.right} color="green" />
+            {/* <FingerTipSphere handIndex={HAND_INDEX.left} color="red" /> */}
+            {/* <FingerTipSphere handIndex={HAND_INDEX.right} color="green" /> */}
 
             <Hands />
           </Suspense>
