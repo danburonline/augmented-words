@@ -130,9 +130,9 @@ function Html({ children, width, height, color = 'transparent' }: HtmlProps) {
     const imageAspectH = texture.image.width / texture.image.height
 
     const cam = camera as PerspectiveCamera
-    const fov = (cam.fov * Math.PI) / 180 // convert vertical fov to radians
+    const fov = (cam.fov * Math.PI) / 180 // Convert vertical fov to radians
 
-    let h = 2 * Math.tan(fov / 2) * 5 // visible height
+    let h = 2 * Math.tan(fov / 2) * 5 // Visible height
     let w = h * imageAspectH
 
     if (width !== undefined) {
@@ -168,7 +168,7 @@ function Html({ children, width, height, color = 'transparent' }: HtmlProps) {
   }, [texture, size, gl.capabilities])
 
   return (
-    <mesh>
+    <mesh position={[0, 1.5, -5]}>
       <planeGeometry args={[size.width, size.height]} />
       <meshBasicMaterial map={texture} side={DoubleSide} transparent />
     </mesh>
@@ -249,21 +249,19 @@ function Sphere({ createRandomLetter }: SphereProps) {
 function InputForm(props: { givenText?: string }) {
   const [text, setText] = useState(props.givenText || '')
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    console.log('This is the form text: ', text)
-  }
-
   return (
-    <form onSubmit={handleSubmit}>
+    <form>
       <input
+        style={{
+          padding: '0.5em',
+          lineHeight: '1.5em'
+        }}
         type="text"
         value={text}
         onChange={(e) => {
           setText(e.target.value)
         }}
       />
-      <input type="submit" value="Submit" />
     </form>
   )
 }
@@ -294,7 +292,7 @@ export default function MainScene() {
           <Suspense fallback={undefined}>
             <Sphere createRandomLetter={createRandomLetterHandler} />
             <Interactive>
-              <Html width={2} height={1}>
+              <Html width={4}>
                 <InputForm givenText={formText} />
               </Html>
             </Interactive>
