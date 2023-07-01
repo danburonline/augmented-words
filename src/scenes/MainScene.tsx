@@ -32,13 +32,6 @@ function Key({ createRandomLetter, position, size }: KeyProps) {
         .joints['index-finger-tip']
   )
 
-  const wristLeft = useXR(
-    (state) =>
-      // Only select the left hand for the keyboard anchor
-      state.controllers.find((controller) => controller.inputSource.handedness === 'left')?.hand
-        ?.joints['wrist']
-  )
-
   function createRandomLetterOnce() {
     if (!randomLetterWasCreated) {
       createRandomLetter()
@@ -102,8 +95,8 @@ function KeyboardGroup({ children }: { children: React.ReactNode }) {
       groupRef.current.position.y = wristLeft.position.y
       groupRef.current.position.z = wristLeft.position.z
 
-      // Copy the y rotation from the camera to the keyboard
-      groupRef.current.rotation.y = camera.rotation.y
+      const adjustedCameraPosition = camera.position.clone().add(new Vector3(0, Math.PI / 2, 0))
+      groupRef.current.lookAt(adjustedCameraPosition)
     }
   })
 
