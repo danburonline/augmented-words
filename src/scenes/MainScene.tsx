@@ -15,6 +15,40 @@ type KeyProps = {
   size: [number, number, number]
 }
 
+type FloatingTextProps = {
+  text: string
+}
+
+function FloatingText({ text }: FloatingTextProps) {
+  const { camera } = useThree()
+  const groupRef = useRef<THREE.Group | null>(null)
+
+  const wristLeft = useXR(
+    (state) =>
+      state.controllers.find((controller) => controller.inputSource.handedness === 'left')?.hand
+        ?.joints['wrist']
+  )
+
+  useFrame(() => {
+    if (groupRef.current && wristLeft) {
+      groupRef.current.position.x = wristLeft.position.x
+      groupRef.current.position.y = wristLeft.position.y + 0.3
+      groupRef.current.position.z = wristLeft.position.z
+
+      const adjustedCameraPosition = camera.position.clone().add(new Vector3(0, 0, 0))
+      groupRef.current.lookAt(adjustedCameraPosition)
+    }
+  })
+
+  return (
+    <group ref={groupRef}>
+      <Text fontSize={0.05} color="white">
+        {text}
+      </Text>
+    </group>
+  )
+}
+
 function Key({ letter, handleKeyPress, position, size }: KeyProps) {
   const [color, setColor] = useState('blue')
   const [keyPressed, setKeyPressed] = useState(false)
@@ -133,12 +167,12 @@ export default function MainScene() {
       {
         letter: '<-',
         function: () => setFormText((prev) => prev.slice(0, -1)),
-        position: [0.3, 0, 0]
+        position: [0.15, 0, 0]
       }, // Backspace key
       {
         letter: 'space',
         function: () => setFormText((prev) => prev + ' '),
-        position: [0.15, -0.09, 0]
+        position: [0, -0.125, 0]
       } // Space key
     ]
 
@@ -185,10 +219,11 @@ export default function MainScene() {
           <ambientLight intensity={0.25} />
           <Suspense fallback={undefined}>
             <KeyboardGroup>{createKeyboard()}</KeyboardGroup>
+            <FloatingText text={formText} />
 
-            <Html width={4}>
-              <InputForm givenText={formText} />
-            </Html>
+            {/* <Html width={4}> */}
+            {/* <InputForm givenText={formText} /> */}
+            {/* </Html> */}
 
             {/* ? Use for debugging */}
             {/* <FingerTipSphere handIndex={HAND_INDEX.left} color="red" /> */}
