@@ -22,12 +22,6 @@ function Key({ letter, handleKeyPress, position, size }: KeyProps) {
 
   const keyWorldPosition = useRef(new Vector3())
 
-  const fingerTipsLeft = useXR(
-    (state) =>
-      state.controllers.find((controller) => controller.inputSource.handedness === 'left')?.hand
-        .joints
-  )
-
   const fingerTipsRight = useXR(
     (state) =>
       state.controllers.find((controller) => controller.inputSource.handedness === 'right')?.hand
@@ -51,24 +45,15 @@ function Key({ letter, handleKeyPress, position, size }: KeyProps) {
     if (keyRef.current) {
       keyRef.current.getWorldPosition(keyWorldPosition.current)
 
-      const distancesLeft = fingerTipsLeft
-        ? Object.values(fingerTipsLeft).map((joint) =>
-            keyWorldPosition.current.distanceTo(joint.position)
-          )
-        : []
       const distancesRight = fingerTipsRight
         ? Object.values(fingerTipsRight).map((joint) =>
             keyWorldPosition.current.distanceTo(joint.position)
           )
         : []
 
-      const minDistanceLeft = Math.min(...distancesLeft)
       const minDistanceRight = Math.min(...distancesRight)
 
-      if (
-        (distancesLeft.length > 0 && minDistanceLeft < 0.01) ||
-        (distancesRight.length > 0 && minDistanceRight < 0.01)
-      ) {
+      if (distancesRight.length > 0 && minDistanceRight < 0.01) {
         setColor('orange')
         handleKeyPressOnce()
       } else {
@@ -132,14 +117,29 @@ export default function MainScene() {
     return array
   }
 
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
-  const shuffledAlphabet = shuffleArray(alphabet)
-
   function createKeyboard() {
     const rows = [
+      ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
       ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
       ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
       ['z', 'x', 'c', 'v', 'b', 'n', 'm']
+    ]
+
+    const specialKeys: {
+      letter: string
+      function: () => void
+      position: [number, number, number]
+    }[] = [
+      {
+        letter: '<-',
+        function: () => setFormText((prev) => prev.slice(0, -1)),
+        position: [0.3, 0, 0]
+      }, // Backspace key
+      {
+        letter: 'space',
+        function: () => setFormText((prev) => prev + ' '),
+        position: [0.15, -0.09, 0]
+      } // Space key
     ]
 
     const keySize = 0.02
@@ -158,6 +158,18 @@ export default function MainScene() {
           />
         )
       }
+    }
+
+    for (let i = 0; i < specialKeys.length; i++) {
+      keys.push(
+        <Key
+          key={`${specialKeys[i].letter}-${i}`}
+          letter={specialKeys[i].letter}
+          handleKeyPress={specialKeys[i].function}
+          position={specialKeys[i].position}
+          size={[keySize, keySize, keySize]}
+        />
+      )
     }
 
     return keys
