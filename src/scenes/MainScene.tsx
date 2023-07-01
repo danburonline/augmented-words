@@ -60,8 +60,8 @@ function Key({ createRandomLetter, position, size }: KeyProps) {
         : null
 
       if (
-        (leftDistance !== null && leftDistance < 0.025) ||
-        (rightDistance !== null && rightDistance < 0.025)
+        (leftDistance !== null && leftDistance < 0.01) ||
+        (rightDistance !== null && rightDistance < 0.01)
       ) {
         setColor('orange')
         createRandomLetterOnce()
