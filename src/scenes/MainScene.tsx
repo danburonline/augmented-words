@@ -12,11 +12,11 @@ enum HAND_INDEX {
   right = 1
 }
 
-type SphereProps = {
+type KeyProps = {
   createRandomLetter: () => void
 }
 
-function Sphere({ createRandomLetter }: SphereProps) {
+function Key({ createRandomLetter }: KeyProps) {
   const [color, setColor] = useState('blue')
   const [randomLetterWasCreated, setRandomLetterCreated] = useState(false)
 
@@ -104,7 +104,7 @@ export default function MainScene() {
         <XR>
           <ambientLight intensity={0.25} />
           <Suspense fallback={undefined}>
-            <Sphere createRandomLetter={createRandomLetterHandler} />
+            <Key createRandomLetter={createRandomLetterHandler} />
 
             <Html width={4}>
               <InputForm givenText={formText} />
