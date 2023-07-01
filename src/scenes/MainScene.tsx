@@ -19,7 +19,7 @@ type KeyProps = {
 function Key({ createRandomLetter }: KeyProps) {
   const [color, setColor] = useState('blue')
   const [randomLetterWasCreated, setRandomLetterCreated] = useState(false)
-  const sphereRef = useRef<Mesh | null>(null)
+  const keyRef = useRef<Mesh | null>(null)
 
   const fingerTipLeft = useXR(
     (state) =>
@@ -48,18 +48,18 @@ function Key({ createRandomLetter }: KeyProps) {
   }
 
   useFrame(() => {
-    if (sphereRef.current && wristLeft) {
-      sphereRef.current.position.x = wristLeft.position.x - 0.075
-      sphereRef.current.position.y = wristLeft.position.y + 0.03
-      sphereRef.current.position.z = wristLeft.position.z
+    if (keyRef.current && wristLeft) {
+      keyRef.current.position.x = wristLeft.position.x - 0.075
+      keyRef.current.position.y = wristLeft.position.y + 0.03
+      keyRef.current.position.z = wristLeft.position.z
     }
 
-    if (sphereRef.current) {
+    if (keyRef.current) {
       const leftDistance = fingerTipLeft
-        ? sphereRef.current.position.distanceTo(fingerTipLeft.position)
+        ? keyRef.current.position.distanceTo(fingerTipLeft.position)
         : null
       const rightDistance = fingerTipRight
-        ? sphereRef.current.position.distanceTo(fingerTipRight.position)
+        ? keyRef.current.position.distanceTo(fingerTipRight.position)
         : null
 
       if (
@@ -77,8 +77,8 @@ function Key({ createRandomLetter }: KeyProps) {
 
   return (
     <Interactive>
-      <mesh ref={sphereRef} name="exampleSphere">
-        <sphereGeometry args={[0.01, 50, 50]} />
+      <mesh ref={keyRef} name="key">
+        <boxGeometry args={[0.02, 0.02, 0.02]} />
         <meshStandardMaterial color={color} />
       </mesh>
     </Interactive>
