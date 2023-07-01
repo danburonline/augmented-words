@@ -91,11 +91,11 @@ function KeyboardGroup({ children }: { children: React.ReactNode }) {
 
   useFrame(() => {
     if (groupRef.current && wristLeft) {
-      groupRef.current.position.x = wristLeft.position.x + 0.05
+      groupRef.current.position.x = wristLeft.position.x + 0.1
       groupRef.current.position.y = wristLeft.position.y + 0.01
       groupRef.current.position.z = wristLeft.position.z
 
-      const adjustedCameraPosition = camera.position.clone().add(new Vector3(0, Math.PI / 2, 0))
+      const adjustedCameraPosition = camera.position.clone().add(new Vector3(0, Math.PI, 0))
       groupRef.current.lookAt(adjustedCameraPosition)
     }
   })
@@ -104,7 +104,7 @@ function KeyboardGroup({ children }: { children: React.ReactNode }) {
 }
 
 export default function MainScene() {
-  const [formText, setFormText] = useState('HELLO')
+  const [formText, setFormText] = useState('Lorem')
 
   function createRandomLetter() {
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
