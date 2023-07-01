@@ -91,8 +91,8 @@ function KeyboardGroup({ children }: { children: React.ReactNode }) {
 
   useFrame(() => {
     if (groupRef.current && wristLeft) {
-      groupRef.current.position.x = wristLeft.position.x
-      groupRef.current.position.y = wristLeft.position.y
+      groupRef.current.position.x = wristLeft.position.x + 0.05
+      groupRef.current.position.y = wristLeft.position.y + 0.01
       groupRef.current.position.z = wristLeft.position.z
 
       const adjustedCameraPosition = camera.position.clone().add(new Vector3(0, Math.PI / 2, 0))
