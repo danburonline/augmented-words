@@ -1,6 +1,6 @@
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { XR, Hands, useXR, Interactive } from '@react-three/xr'
-import { Mesh } from 'three'
+import { Mesh, Vector3 } from 'three'
 import { Suspense, useRef, useState } from 'react'
 
 import CustomARButton from '../components/CustomARButton'
@@ -17,6 +17,8 @@ function Key({ createRandomLetter, position, size }: KeyProps) {
   const [color, setColor] = useState('blue')
   const [randomLetterWasCreated, setRandomLetterCreated] = useState(false)
   const keyRef = useRef<Mesh | null>(null)
+
+  const keyWorldPosition = useRef(new Vector3())
 
   const fingerTipLeft = useXR(
     (state) =>
@@ -45,18 +47,20 @@ function Key({ createRandomLetter, position, size }: KeyProps) {
   }
 
   useFrame(() => {
-    if (keyRef.current && wristLeft && position) {
-      keyRef.current.position.x = wristLeft.position.x - 0.075 + position[0]
-      keyRef.current.position.y = wristLeft.position.y + 0.03 + position[1]
-      keyRef.current.position.z = wristLeft.position.z + position[2]
+    if (keyRef.current && position) {
+      keyRef.current.position.x = position[0]
+      keyRef.current.position.y = position[1]
+      keyRef.current.position.z = position[2]
     }
 
     if (keyRef.current) {
+      keyRef.current.getWorldPosition(keyWorldPosition.current)
+
       const leftDistance = fingerTipLeft
-        ? keyRef.current.position.distanceTo(fingerTipLeft.position)
+        ? keyWorldPosition.current.distanceTo(fingerTipLeft.position)
         : null
       const rightDistance = fingerTipRight
-        ? keyRef.current.position.distanceTo(fingerTipRight.position)
+        ? keyWorldPosition.current.distanceTo(fingerTipRight.position)
         : null
 
       if (
@@ -80,6 +84,30 @@ function Key({ createRandomLetter, position, size }: KeyProps) {
       </mesh>
     </Interactive>
   )
+}
+
+function KeyboardGroup({ children }: { children: React.ReactNode }) {
+  const { camera } = useThree()
+  const groupRef = useRef<THREE.Group | null>(null)
+
+  const wristLeft = useXR(
+    (state) =>
+      state.controllers.find((controller) => controller.inputSource.handedness === 'left')?.hand
+        ?.joints['wrist']
+  )
+
+  useFrame(() => {
+    if (groupRef.current && wristLeft) {
+      groupRef.current.position.x = wristLeft.position.x
+      groupRef.current.position.y = wristLeft.position.y
+      groupRef.current.position.z = wristLeft.position.z
+
+      // Copy the y rotation from the camera to the keyboard
+      groupRef.current.rotation.y = camera.rotation.y
+    }
+  })
+
+  return <group ref={groupRef}>{children}</group>
 }
 
 export default function MainScene() {
@@ -161,7 +189,7 @@ export default function MainScene() {
         <XR>
           <ambientLight intensity={0.25} />
           <Suspense fallback={undefined}>
-            {createKeyboard()}
+            <KeyboardGroup>{createKeyboard()}</KeyboardGroup>
 
             <Html width={4}>
               <InputForm givenText={formText} />
