@@ -2,20 +2,22 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { XR, Hands, useXR, Interactive } from '@react-three/xr'
 import { Mesh, Vector3 } from 'three'
 import { Suspense, useRef, useState } from 'react'
+import Html from '../components/Html'
+import { Text } from '@react-three/drei'
 
 import CustomARButton from '../components/CustomARButton'
-import Html from '../components/Html'
 import InputForm from '../components/InputForm'
 
 type KeyProps = {
-  createRandomLetter: () => void
+  letter: string
+  handleKeyPress: () => void
   position?: [number, number, number]
   size: [number, number, number]
 }
 
-function Key({ createRandomLetter, position, size }: KeyProps) {
+function Key({ letter, handleKeyPress, position, size }: KeyProps) {
   const [color, setColor] = useState('blue')
-  const [randomLetterWasCreated, setRandomLetterCreated] = useState(false)
+  const [keyPressed, setKeyPressed] = useState(false)
   const keyRef = useRef<Mesh | null>(null)
 
   const keyWorldPosition = useRef(new Vector3())
@@ -32,10 +34,10 @@ function Key({ createRandomLetter, position, size }: KeyProps) {
         .joints
   )
 
-  function createRandomLetterOnce() {
-    if (!randomLetterWasCreated) {
-      createRandomLetter()
-      setRandomLetterCreated(true)
+  function handleKeyPressOnce() {
+    if (!keyPressed) {
+      handleKeyPress()
+      setKeyPressed(true)
     }
   }
 
@@ -68,10 +70,10 @@ function Key({ createRandomLetter, position, size }: KeyProps) {
         (distancesRight.length > 0 && minDistanceRight < 0.01)
       ) {
         setColor('orange')
-        createRandomLetterOnce()
+        handleKeyPressOnce()
       } else {
         setColor('blue')
-        setRandomLetterCreated(false)
+        setKeyPressed(false)
       }
     }
   })
@@ -81,6 +83,14 @@ function Key({ createRandomLetter, position, size }: KeyProps) {
       <mesh ref={keyRef} name="key">
         <boxGeometry args={[...size]} />
         <meshStandardMaterial color={color} />
+        <Text
+          position={[0, -0.02, 0]}
+          fontSize={0.025}
+          color="black"
+          rotation={[Math.PI / 2, 0, 0]}
+        >
+          {letter}
+        </Text>
       </mesh>
     </Interactive>
   )
@@ -113,16 +123,22 @@ function KeyboardGroup({ children }: { children: React.ReactNode }) {
 export default function MainScene() {
   const [formText, setFormText] = useState('Lorem')
 
-  function createRandomLetter() {
-    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    const randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)]
-    return randomLetter
+  function handleKeyPress(letter: string) {
+    setFormText((prev) => prev + letter)
   }
 
-  function createRandomLetterHandler() {
-    let randomLetter = createRandomLetter()
-    setFormText((prev) => prev + randomLetter)
+  function shuffleArray(array: string[]) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      const temp = array[i]
+      array[i] = array[j]
+      array[j] = temp
+    }
+    return array
   }
+
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+  const shuffledAlphabet = shuffleArray(alphabet)
 
   function createKeyboard() {
     const keySize = 0.02
@@ -132,50 +148,13 @@ export default function MainScene() {
       ...Array.from({ length: 20 }, (_, i) => (
         <Key
           key={i}
-          createRandomLetter={createRandomLetterHandler}
+          letter={shuffledAlphabet[i]}
+          handleKeyPress={() => handleKeyPress(shuffledAlphabet[i])}
           position={[(i % 10) * keySpacing, keySize, Math.floor(i / 10) * keySpacing]}
           size={[keySize, keySize, keySize]}
         />
-      )),
-      // Create 2x width key at the start of third row.
-      <Key
-        key={20}
-        createRandomLetter={createRandomLetterHandler}
-        position={[0, keySize, 2 * keySpacing]}
-        size={[2 * keySize, keySize, keySize]}
-      />,
-      // Create 8 keys after wide key in the third row.
-      ...Array.from({ length: 8 }, (_, i) => (
-        <Key
-          key={i + 21}
-          createRandomLetter={createRandomLetterHandler}
-          position={[(i + 2) * keySpacing, keySize, 2 * keySpacing]}
-          size={[keySize, keySize, keySize]}
-        />
-      )),
-      // Add the last key to the third row (the 3x height key).
-      <Key
-        key={29}
-        createRandomLetter={createRandomLetterHandler}
-        position={[10 * keySpacing, keySize, keySpacing]}
-        size={[keySize, keySize, 3 * keySpacing]}
-      />,
-      // Create 9x width key at the start of the fourth row.
-      <Key
-        key={30}
-        createRandomLetter={createRandomLetterHandler}
-        position={[6 * keySize, keySize, 3 * keySpacing]}
-        size={[13 * keySize, keySize, keySize]}
-      />,
-      // Create 2 keys after large key in the fourth row.
-      ...Array.from({ length: 2 }, (_, i) => (
-        <Key
-          key={i + 31}
-          createRandomLetter={createRandomLetterHandler}
-          position={[(i + 9) * keySpacing, keySize, 3 * keySpacing]}
-          size={[keySize, keySize, keySize]}
-        />
       ))
+      // Continue this pattern for other keys...
     ]
     return keys
   }
