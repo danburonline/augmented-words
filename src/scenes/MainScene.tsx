@@ -83,12 +83,7 @@ function Key({ letter, handleKeyPress, position, size }: KeyProps) {
       <mesh ref={keyRef} name="key">
         <boxGeometry args={[...size]} />
         <meshStandardMaterial color={color} />
-        <Text
-          position={[0, -0.02, 0]}
-          fontSize={0.025}
-          color="black"
-          rotation={[Math.PI / 2, 0, 0]}
-        >
+        <Text position={[0, 0, 0.0125]} fontSize={0.015} color="black">
           {letter}
         </Text>
       </mesh>
@@ -108,7 +103,7 @@ function KeyboardGroup({ children }: { children: React.ReactNode }) {
 
   useFrame(() => {
     if (groupRef.current && wristLeft) {
-      groupRef.current.position.x = wristLeft.position.x + 0.1
+      groupRef.current.position.x = wristLeft.position.x + 0.25
       groupRef.current.position.y = wristLeft.position.y + 0.01
       groupRef.current.position.z = wristLeft.position.z
 
@@ -141,21 +136,30 @@ export default function MainScene() {
   const shuffledAlphabet = shuffleArray(alphabet)
 
   function createKeyboard() {
+    const rows = [
+      ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+      ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+      ['z', 'x', 'c', 'v', 'b', 'n', 'm']
+    ]
+
     const keySize = 0.02
     const keySpacing = 0.03
-    const keys = [
-      // Create 10 keys in the first two rows.
-      ...Array.from({ length: 20 }, (_, i) => (
-        <Key
-          key={i}
-          letter={shuffledAlphabet[i]}
-          handleKeyPress={() => handleKeyPress(shuffledAlphabet[i])}
-          position={[(i % 10) * keySpacing, keySize, Math.floor(i / 10) * keySpacing]}
-          size={[keySize, keySize, keySize]}
-        />
-      ))
-      // Continue this pattern for other keys...
-    ]
+    const keys = []
+
+    for (let i = 0; i < rows.length; i++) {
+      for (let j = 0; j < rows[i].length; j++) {
+        keys.push(
+          <Key
+            key={`${rows[i][j]}-${i}-${j}`}
+            letter={rows[i][j]}
+            handleKeyPress={() => handleKeyPress(rows[i][j])}
+            position={[(j - rows[i].length / 2) * keySpacing, -i * keySpacing, 0]}
+            size={[keySize, keySize, keySize]}
+          />
+        )
+      }
+    }
+
     return keys
   }
 
