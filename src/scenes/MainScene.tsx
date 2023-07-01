@@ -7,16 +7,12 @@ import CustomARButton from '../components/CustomARButton'
 import Html from '../components/Html'
 import InputForm from '../components/InputForm'
 
-enum HAND_INDEX {
-  left = 0,
-  right = 1
-}
-
 type KeyProps = {
   createRandomLetter: () => void
+  position?: [number, number, number]
 }
 
-function Key({ createRandomLetter }: KeyProps) {
+function Key({ createRandomLetter, position }: KeyProps) {
   const [color, setColor] = useState('blue')
   const [randomLetterWasCreated, setRandomLetterCreated] = useState(false)
   const keyRef = useRef<Mesh | null>(null)
@@ -48,10 +44,10 @@ function Key({ createRandomLetter }: KeyProps) {
   }
 
   useFrame(() => {
-    if (keyRef.current && wristLeft) {
-      keyRef.current.position.x = wristLeft.position.x - 0.075
-      keyRef.current.position.y = wristLeft.position.y + 0.03
-      keyRef.current.position.z = wristLeft.position.z
+    if (keyRef.current && wristLeft && position) {
+      keyRef.current.position.x = wristLeft.position.x - 0.075 + position[0]
+      keyRef.current.position.y = wristLeft.position.y + 0.03 + position[1]
+      keyRef.current.position.z = wristLeft.position.z + position[2]
     }
 
     if (keyRef.current) {
@@ -99,6 +95,28 @@ export default function MainScene() {
     setFormText((prev) => prev + randomLetter)
   }
 
+  function createGridKeys() {
+    let keys = []
+    const gridSize = 3
+    const keySpacing = 0.05 // change this to increase/decrease the spacing between keys
+
+    for (let i = 0; i < gridSize; i++) {
+      for (let j = 0; j < gridSize; j++) {
+        let x = i * keySpacing - ((gridSize - 1) * keySpacing) / 2
+        let z = j * keySpacing - ((gridSize - 1) * keySpacing) / 2
+        keys.push(
+          <Key
+            key={`${i}-${j}`} // unique key for each child in a list
+            createRandomLetter={createRandomLetterHandler}
+            position={[x, 0, z]}
+          />
+        )
+      }
+    }
+
+    return keys
+  }
+
   return (
     <>
       <div style={{ position: 'fixed', right: 0, padding: '20px', zIndex: '10' }}>
@@ -108,7 +126,7 @@ export default function MainScene() {
         <XR>
           <ambientLight intensity={0.25} />
           <Suspense fallback={undefined}>
-            <Key createRandomLetter={createRandomLetterHandler} />
+            {createGridKeys()}
 
             <Html width={4}>
               <InputForm givenText={formText} />
