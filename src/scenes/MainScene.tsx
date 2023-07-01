@@ -20,16 +20,16 @@ function Key({ createRandomLetter, position, size }: KeyProps) {
 
   const keyWorldPosition = useRef(new Vector3())
 
-  const fingerTipLeft = useXR(
+  const fingerTipsLeft = useXR(
     (state) =>
       state.controllers.find((controller) => controller.inputSource.handedness === 'left')?.hand
-        .joints['index-finger-tip']
+        .joints
   )
 
-  const fingerTipRight = useXR(
+  const fingerTipsRight = useXR(
     (state) =>
       state.controllers.find((controller) => controller.inputSource.handedness === 'right')?.hand
-        .joints['index-finger-tip']
+        .joints
   )
 
   function createRandomLetterOnce() {
@@ -49,16 +49,23 @@ function Key({ createRandomLetter, position, size }: KeyProps) {
     if (keyRef.current) {
       keyRef.current.getWorldPosition(keyWorldPosition.current)
 
-      const leftDistance = fingerTipLeft
-        ? keyWorldPosition.current.distanceTo(fingerTipLeft.position)
-        : null
-      const rightDistance = fingerTipRight
-        ? keyWorldPosition.current.distanceTo(fingerTipRight.position)
-        : null
+      const distancesLeft = fingerTipsLeft
+        ? Object.values(fingerTipsLeft).map((joint) =>
+            keyWorldPosition.current.distanceTo(joint.position)
+          )
+        : []
+      const distancesRight = fingerTipsRight
+        ? Object.values(fingerTipsRight).map((joint) =>
+            keyWorldPosition.current.distanceTo(joint.position)
+          )
+        : []
+
+      const minDistanceLeft = Math.min(...distancesLeft)
+      const minDistanceRight = Math.min(...distancesRight)
 
       if (
-        (leftDistance !== null && leftDistance < 0.01) ||
-        (rightDistance !== null && rightDistance < 0.01)
+        (distancesLeft.length > 0 && minDistanceLeft < 0.01) ||
+        (distancesRight.length > 0 && minDistanceRight < 0.01)
       ) {
         setColor('orange')
         createRandomLetterOnce()
