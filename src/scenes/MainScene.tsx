@@ -19,19 +19,23 @@ type KeyProps = {
 function Key({ createRandomLetter }: KeyProps) {
   const [color, setColor] = useState('blue')
   const [randomLetterWasCreated, setRandomLetterCreated] = useState(false)
-
   const sphereRef = useRef<Mesh | null>(null)
 
   const fingerTipLeft = useXR(
-    (state) => state.controllers[HAND_INDEX.left]?.hand?.joints['index-finger-tip']
+    (state) =>
+      state.controllers.find((controller) => controller.inputSource.handedness === 'left')?.hand
+        .joints['index-finger-tip']
   )
+
   const fingerTipRight = useXR(
-    (state) => state.controllers[HAND_INDEX.right]?.hand?.joints['index-finger-tip']
+    (state) =>
+      state.controllers.find((controller) => controller.inputSource.handedness === 'right')?.hand
+        .joints['index-finger-tip']
   )
 
   const wristLeft = useXR(
     (state) =>
-      // Only select the left hand for the keyboard
+      // Only select the left hand for the keyboard anchor
       state.controllers.find((controller) => controller.inputSource.handedness === 'left')?.hand
         ?.joints['wrist']
   )
