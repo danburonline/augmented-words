@@ -29,7 +29,12 @@ function Sphere({ createRandomLetter }: SphereProps) {
     (state) => state.controllers[HAND_INDEX.right]?.hand?.joints['index-finger-tip']
   )
 
-  const wristLeft = useXR((state) => state.controllers[HAND_INDEX.left]?.hand?.joints['wrist'])
+  const wristLeft = useXR(
+    (state) =>
+      // Only select the left hand for the keyboard
+      state.controllers.find((controller) => controller.inputSource.handedness === 'left')?.hand
+        ?.joints['wrist']
+  )
 
   function createRandomLetterOnce() {
     if (!randomLetterWasCreated) {
