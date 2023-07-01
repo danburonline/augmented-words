@@ -10,9 +10,10 @@ import InputForm from '../components/InputForm'
 type KeyProps = {
   createRandomLetter: () => void
   position?: [number, number, number]
+  size: [number, number, number]
 }
 
-function Key({ createRandomLetter, position }: KeyProps) {
+function Key({ createRandomLetter, position, size }: KeyProps) {
   const [color, setColor] = useState('blue')
   const [randomLetterWasCreated, setRandomLetterCreated] = useState(false)
   const keyRef = useRef<Mesh | null>(null)
@@ -59,8 +60,8 @@ function Key({ createRandomLetter, position }: KeyProps) {
         : null
 
       if (
-        (leftDistance !== null && leftDistance < 0.01) ||
-        (rightDistance !== null && rightDistance < 0.01)
+        (leftDistance !== null && leftDistance < 0.025) ||
+        (rightDistance !== null && rightDistance < 0.025)
       ) {
         setColor('orange')
         createRandomLetterOnce()
@@ -74,7 +75,7 @@ function Key({ createRandomLetter, position }: KeyProps) {
   return (
     <Interactive>
       <mesh ref={keyRef} name="key">
-        <boxGeometry args={[0.02, 0.02, 0.02]} />
+        <boxGeometry args={[...size]} />
         <meshStandardMaterial color={color} />
       </mesh>
     </Interactive>
@@ -95,25 +96,59 @@ export default function MainScene() {
     setFormText((prev) => prev + randomLetter)
   }
 
-  function createGridKeys() {
-    let keys = []
-    const gridSize = 3
-    const keySpacing = 0.05 // change this to increase/decrease the spacing between keys
-
-    for (let i = 0; i < gridSize; i++) {
-      for (let j = 0; j < gridSize; j++) {
-        let x = i * keySpacing - ((gridSize - 1) * keySpacing) / 2
-        let z = j * keySpacing - ((gridSize - 1) * keySpacing) / 2
-        keys.push(
-          <Key
-            key={`${i}-${j}`} // unique key for each child in a list
-            createRandomLetter={createRandomLetterHandler}
-            position={[x, 0, z]}
-          />
-        )
-      }
-    }
-
+  function createKeyboard() {
+    const keySize = 0.02
+    const keySpacing = 0.03
+    const keys = [
+      // Create 10 keys in the first two rows.
+      ...Array.from({ length: 20 }, (_, i) => (
+        <Key
+          key={i}
+          createRandomLetter={createRandomLetterHandler}
+          position={[(i % 10) * keySpacing, keySize, Math.floor(i / 10) * keySpacing]}
+          size={[keySize, keySize, keySize]}
+        />
+      )),
+      // Create 2x width key at the start of third row.
+      <Key
+        key={20}
+        createRandomLetter={createRandomLetterHandler}
+        position={[0, keySize, 2 * keySpacing]}
+        size={[2 * keySize, keySize, keySize]}
+      />,
+      // Create 8 keys after wide key in the third row.
+      ...Array.from({ length: 8 }, (_, i) => (
+        <Key
+          key={i + 21}
+          createRandomLetter={createRandomLetterHandler}
+          position={[(i + 2) * keySpacing, keySize, 2 * keySpacing]}
+          size={[keySize, keySize, keySize]}
+        />
+      )),
+      // Add the last key to the third row (the 3x height key).
+      <Key
+        key={29}
+        createRandomLetter={createRandomLetterHandler}
+        position={[10 * keySpacing, keySize, keySpacing]}
+        size={[keySize, keySize, 3 * keySpacing]}
+      />,
+      // Create 9x width key at the start of the fourth row.
+      <Key
+        key={30}
+        createRandomLetter={createRandomLetterHandler}
+        position={[6 * keySize, keySize, 3 * keySpacing]}
+        size={[13 * keySize, keySize, keySize]}
+      />,
+      // Create 2 keys after large key in the fourth row.
+      ...Array.from({ length: 2 }, (_, i) => (
+        <Key
+          key={i + 31}
+          createRandomLetter={createRandomLetterHandler}
+          position={[(i + 9) * keySpacing, keySize, 3 * keySpacing]}
+          size={[keySize, keySize, keySize]}
+        />
+      ))
+    ]
     return keys
   }
 
@@ -126,7 +161,7 @@ export default function MainScene() {
         <XR>
           <ambientLight intensity={0.25} />
           <Suspense fallback={undefined}>
-            {createGridKeys()}
+            {createKeyboard()}
 
             <Html width={4}>
               <InputForm givenText={formText} />
