@@ -229,6 +229,7 @@ export default function MainScene() {
             {/* <FingerTipSphere handIndex={HAND_INDEX.left} color="red" /> */}
             {/* <FingerTipSphere handIndex={HAND_INDEX.right} color="green" /> */}
 
+            <gridHelper />
             <Hands />
           </Suspense>
         </XR>
