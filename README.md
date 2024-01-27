@@ -1,5 +1,7 @@
 # Augmented Words
 
+![Visualisation of final idea](docs/augmented-words.png)
+
 ## Quick setup
 
 1. Install all dependencies via `pnpm install`
